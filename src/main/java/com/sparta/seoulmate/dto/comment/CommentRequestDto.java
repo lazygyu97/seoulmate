@@ -1,4 +1,4 @@
-package com.sparta.seoulmate.comment.dto;
+package com.sparta.seoulmate.dto.comment;
 
 import lombok.Getter;
 import lombok.Setter;

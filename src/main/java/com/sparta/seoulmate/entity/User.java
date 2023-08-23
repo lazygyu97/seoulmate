@@ -65,4 +65,10 @@ public class User extends Timestamped {
     @Enumerated(value = EnumType.STRING)
     private UserGenderEnum gender;
 
+    public User update(String nickname, String profileImageUrl) {
+        this.nickname = nickname;
+        this.image = profileImageUrl;
+        return this;
+    }
+
 }

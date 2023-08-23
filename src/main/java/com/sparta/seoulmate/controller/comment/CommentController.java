@@ -1,15 +1,18 @@
 package com.sparta.seoulmate.controller.comment;
 
+import com.sparta.seoulmate.dto.ApiResponseDto;
 import com.sparta.seoulmate.dto.comment.CommentRequestDto;
+import com.sparta.seoulmate.dto.comment.CommentResponseDto;
 import com.sparta.seoulmate.security.UserDetailsImpl;
 import com.sparta.seoulmate.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -25,5 +28,24 @@ public class CommentController {
         return "redirect:/api/post/" + commentRequestDto.getPostId();
     }
 
+    // Comment 단건 조회
+    @GetMapping("/{commentId}")
+    public ResponseEntity<CommentResponseDto> getComment(@PathVariable Long commentId) {
+        CommentResponseDto commentResponseDto = commentService.getComment(commentId);
+        return ResponseEntity.ok().body(commentResponseDto);
+    }
 
+    // Comment 다건 조회
+    @GetMapping("/comments")
+    public ResponseEntity<List<CommentResponseDto>> getComments() {
+        List<CommentResponseDto> commentResponseDtos = commentService.getComments();
+        return ResponseEntity.ok().body(commentResponseDtos);
+    }
+
+    // Comment 수정
+    @PutMapping("/{commentId}")
+    public ResponseEntity<ApiResponseDto> updateComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CommentRequestDto commentRequestDto) {
+        commentService.updateComment(commentId, userDetails.getUser(), commentRequestDto);
+        return ResponseEntity.ok().body(new ApiResponseDto("댓글 수정 성공 !", HttpStatus.OK.value()));
+    }
 }

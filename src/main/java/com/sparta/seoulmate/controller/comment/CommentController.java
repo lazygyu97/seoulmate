@@ -25,7 +25,7 @@ public class CommentController {
     @PostMapping("/comment")
     public String createComment(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails, @ModelAttribute CommentRequestDto commentRequestDto) {
         commentService.createComment(postId, userDetails.getUser(), commentRequestDto);
-        return "redirect:/api/post/" + commentRequestDto.getPostId();
+        return "redirect:/api/post/" + postId;
     }
 
     // Comment 단건 조회
@@ -46,6 +46,13 @@ public class CommentController {
     @PutMapping("/{commentId}")
     public ResponseEntity<ApiResponseDto> updateComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CommentRequestDto commentRequestDto) {
         commentService.updateComment(commentId, userDetails.getUser(), commentRequestDto);
-        return ResponseEntity.ok().body(new ApiResponseDto("댓글 수정 성공 !", HttpStatus.OK.value()));
+        return ResponseEntity.ok().body(new ApiResponseDto("댓글 수정 성공", HttpStatus.OK.value()));
+    }
+
+    // Comment 삭제
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<ApiResponseDto> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        commentService.deleteComment(commentId, userDetails.getUser());
+        return ResponseEntity.ok().body(new ApiResponseDto("댓글 삭제 성공", HttpStatus.OK.value()));
     }
 }

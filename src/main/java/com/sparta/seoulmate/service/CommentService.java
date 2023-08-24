@@ -24,7 +24,7 @@ public class CommentService {
 
     // Comment 생성
     public CommentResponseDto createComment (Long postId, User user, CommentRequestDto commentRequestDto) {
-        Post post = postRepository.findById(commentRequestDto.getPostId())
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
         Comment comment = Comment.builder()
@@ -66,6 +66,17 @@ public class CommentService {
         comment.setContent(commentRequestDto.getContent());
 
         return CommentResponseDto.of(comment);
+    }
+
+    // Comment 삭제
+    @Transactional
+    public void deleteComment(Long commentId, User user) {
+        Comment comment = findComment(commentId);
+
+        if(!comment.getAuthor().getId().equals(user.getId())) {
+            throw new RejectedExecutionException();
+        }
+        commentRepository.delete(comment);
     }
 
     public Comment findComment(Long commentId) {

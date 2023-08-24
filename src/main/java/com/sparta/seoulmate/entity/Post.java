@@ -1,6 +1,7 @@
 package com.sparta.seoulmate.entity;
 
 
+import com.sparta.seoulmate.dto.PostRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -50,6 +51,25 @@ public class Post extends Timestamped {
     @Builder.Default
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<PostLike> postLikes = new ArrayList<>();
+
+
+    public Post(PostRequestDto requestDto) {
+        this.title = requestDto.getTitle();
+        this.content = requestDto.getContent();
+    }
+
+    // set -> 이름변경하기~~~~
+    public void setUser(User user) {
+        this.author = user;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 
 
 }

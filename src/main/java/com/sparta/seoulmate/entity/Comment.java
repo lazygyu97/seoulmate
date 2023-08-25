@@ -36,7 +36,11 @@ public class Comment extends Timestamped{
     @OneToMany(mappedBy = "comment", orphanRemoval = true)
     private List<CommentLike> commentLikes = new ArrayList<>();
 
-    public void setContent(String content) {
+    public void updateContent(String content) {
         this.content = content;
+    }
+
+    public void setUser(User user) {
+        this.author = user;
     }
 }

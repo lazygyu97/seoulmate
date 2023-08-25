@@ -1,6 +1,7 @@
 package com.sparta.seoulmate.controller.comment;
 
 import com.sparta.seoulmate.dto.ApiResponseDto;
+import com.sparta.seoulmate.dto.comment.CommentListResponseDto;
 import com.sparta.seoulmate.dto.comment.CommentRequestDto;
 import com.sparta.seoulmate.dto.comment.CommentResponseDto;
 import com.sparta.seoulmate.security.UserDetailsImpl;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class CommentController {
@@ -22,10 +23,10 @@ public class CommentController {
     private final CommentService commentService;
 
     // Comment 생성
-    @PostMapping("/comment")
-    public String createComment(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails, @ModelAttribute CommentRequestDto commentRequestDto) {
+    @PostMapping("/{postId}/comment")
+    public ResponseEntity<ApiResponseDto> createComment(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CommentRequestDto commentRequestDto) {
         commentService.createComment(postId, userDetails.getUser(), commentRequestDto);
-        return "redirect:/api/post/" + postId;
+        return ResponseEntity.ok().body(new ApiResponseDto("댓글 생성 성공", HttpStatus.OK.value()));
     }
 
     // Comment 단건 조회
@@ -37,20 +38,20 @@ public class CommentController {
 
     // Comment 다건 조회
     @GetMapping("/comments")
-    public ResponseEntity<List<CommentResponseDto>> getComments() {
-        List<CommentResponseDto> commentResponseDtos = commentService.getComments();
-        return ResponseEntity.ok().body(commentResponseDtos);
+    public ResponseEntity<CommentListResponseDto> getComments() {
+        CommentListResponseDto commentResponseDto = commentService.getComments();
+        return ResponseEntity.ok().body(commentResponseDto);
     }
 
     // Comment 수정
-    @PutMapping("/{commentId}")
+    @PutMapping("/comment/{commentId}")
     public ResponseEntity<ApiResponseDto> updateComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CommentRequestDto commentRequestDto) {
         commentService.updateComment(commentId, userDetails.getUser(), commentRequestDto);
         return ResponseEntity.ok().body(new ApiResponseDto("댓글 수정 성공", HttpStatus.OK.value()));
     }
 
     // Comment 삭제
-    @DeleteMapping("/{commentId}")
+    @DeleteMapping("/comment/{commentId}")
     public ResponseEntity<ApiResponseDto> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         commentService.deleteComment(commentId, userDetails.getUser());
         return ResponseEntity.ok().body(new ApiResponseDto("댓글 삭제 성공", HttpStatus.OK.value()));

@@ -1,6 +1,5 @@
 package com.sparta.seoulmate.dto.comment;
 
-import com.amazonaws.services.ec2.model.Reservation;
 import com.sparta.seoulmate.dto.ApiResponseDto;
 import com.sparta.seoulmate.entity.Comment;
 import lombok.Builder;
@@ -8,8 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-
-import static io.lettuce.core.KillArgs.Builder.id;
 
 @Getter
 @Setter

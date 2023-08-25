@@ -1,5 +1,6 @@
 package com.sparta.seoulmate.service;
 
+import com.sparta.seoulmate.dto.comment.CommentListResponseDto;
 import com.sparta.seoulmate.dto.comment.CommentRequestDto;
 import com.sparta.seoulmate.dto.comment.CommentResponseDto;
 import com.sparta.seoulmate.entity.Comment;
@@ -13,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,14 +27,10 @@ public class CommentService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
-        Comment comment = Comment.builder()
-                .author(user)
-                .post(post)
-                .content(commentRequestDto.getContent())
-                .build();
+        Comment comment = commentRequestDto.toEntity(post, user);
 
-        Comment savedComment = commentRepository.save(comment);
         // 작성한 댓글 저장
+        Comment savedComment = commentRepository.save(comment);
 
         return CommentResponseDto.of(savedComment);
     }
@@ -48,10 +44,9 @@ public class CommentService {
 
     // Comment 다건 조회
     @Transactional
-    public List<CommentResponseDto> getComments() {
-        List<CommentResponseDto> commentResponseDtos = commentRepository.findAllByOrderByModifiedAtDesc()
-                .stream().map(CommentResponseDto::of).collect(Collectors.toList());
-        return commentResponseDtos;
+    public CommentListResponseDto getComments() {
+        List<Comment> commnetList = commentRepository.findAll();
+        return CommentListResponseDto.of(commnetList);
     }
 
     // Comment 수정
@@ -63,7 +58,7 @@ public class CommentService {
             throw new RejectedExecutionException();
         }
 
-        comment.setContent(commentRequestDto.getContent());
+        comment.updateContent(commentRequestDto.getContent());
 
         return CommentResponseDto.of(comment);
     }
@@ -76,10 +71,11 @@ public class CommentService {
         if(!comment.getAuthor().getId().equals(user.getId())) {
             throw new RejectedExecutionException();
         }
+        // or 연산자 써서 사용자 계정이 admin일 때 삭제할 수 있도록
         commentRepository.delete(comment);
     }
 
-    public Comment findComment(Long commentId) {
+    private Comment findComment(Long commentId) {
         return commentRepository.findById(commentId).orElseThrow(() ->
                 new IllegalArgumentException("선택한 게시글이 존재하지 않습니다."));
     }

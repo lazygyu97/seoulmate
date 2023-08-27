@@ -17,10 +17,12 @@ import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 import java.util.Random;
 
-@Service
 @RequiredArgsConstructor
+@Service
 public class EmailService {
-    private final JavaMailSender emailsender;
+
+
+    private final JavaMailSender emailSender;
     private final EmailVerificationRepository emailVerificationRepository;
     private final UserRepository userRepository;
 
@@ -28,15 +30,15 @@ public class EmailService {
 
     public MimeMessage createMessage(String to) throws MessagingException, UnsupportedEncodingException {
 
-        MimeMessage message = emailsender.createMimeMessage();
+        MimeMessage message = emailSender.createMimeMessage();
 
         message.addRecipients(Message.RecipientType.TO, to);
-        message.setSubject("diaDelivery 회원가입 이메일 인증");
+        message.setSubject("SEOUL MATE 회원가입 이메일 인증");
 
         String msgg = "";
         msgg += "<div style='margin:100px;'>";
         msgg += "<h1> 안녕하세요</h1>";
-        msgg += "<h1> with 입니다</h1>";
+        msgg += "<h1> SEOULMATE 입니다</h1>";
         msgg += "<br>";
         msgg += "<p>아래 코드를 회원가입 창으로 돌아가 입력해주세요<p>";
         msgg += "<br>";
@@ -47,7 +49,7 @@ public class EmailService {
         msgg += ePw + "</strong><div><br/> ";
         msgg += "</div>";
         message.setText(msgg, "utf-8", "html");
-        message.setFrom(new InternetAddress("thddltkr2140@gmail.com", "with"));
+        message.setFrom(new InternetAddress("gusrb1502@gmail.com", "SEOULMATE"));
 
         return message;
     }
@@ -81,7 +83,7 @@ public class EmailService {
 
         MimeMessage message = createMessage(email);
         try {
-            emailsender.send(message);
+            emailSender.send(message);
         } catch (MailException es) {
             es.printStackTrace();
             throw new IllegalArgumentException();

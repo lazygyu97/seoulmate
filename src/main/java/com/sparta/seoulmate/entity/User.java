@@ -43,7 +43,7 @@ public class User extends Timestamped {
     private String phone;
 
     @Column(nullable = false)
-    private String age;
+    private Integer age;
 
     @Column(nullable = false)
     private String city;

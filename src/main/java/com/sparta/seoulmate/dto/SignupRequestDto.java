@@ -5,6 +5,8 @@ import com.sparta.seoulmate.entity.UserGenderEnum;
 import com.sparta.seoulmate.entity.UserRoleEnum;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -27,10 +29,10 @@ public class SignupRequestDto {
     private String district;
     @NotBlank
     private String address;
-    @NotBlank
-    private int age;
+    @Positive
+    private Integer age;
 
-    @NotBlank
+    @NotNull
     UserGenderEnum gender;
 
     @Email
@@ -46,15 +48,16 @@ public class SignupRequestDto {
     @Builder
     public User toEntity(UserRoleEnum role,String password) {
         return User.builder()
-                .username(username)
+                .username(this.username)
                 .password(password)
-                .nickname(nickname)
-                .phone(phone)
-                .city(city)
-                .district(district)
-                .address(address)
-                .gender(gender)
-                .email(email)
+                .nickname(this.nickname)
+                .phone(this.phone)
+                .city(this.city)
+                .district(this.district)
+                .address(this.address)
+                .age(this.age)
+                .gender(this.gender)
+                .email(this.email)
                 .role(role)
                 .build();
     }

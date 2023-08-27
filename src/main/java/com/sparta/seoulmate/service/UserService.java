@@ -7,11 +7,9 @@ import com.sparta.seoulmate.entity.UserRoleEnum;
 import com.sparta.seoulmate.entity.redishash.Blacklist;
 import com.sparta.seoulmate.entity.redishash.EmailVerification;
 import com.sparta.seoulmate.entity.redishash.RefreshToken;
+import com.sparta.seoulmate.entity.redishash.SmsVerification;
 import com.sparta.seoulmate.jwt.JwtUtil;
-import com.sparta.seoulmate.repository.BlacklistRepository;
-import com.sparta.seoulmate.repository.EmailVerificationRepository;
-import com.sparta.seoulmate.repository.RefreshTokenRepository;
-import com.sparta.seoulmate.repository.UserRepository;
+import com.sparta.seoulmate.repository.*;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +29,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailVerificationRepository emailVerificationRepository;
+    private final SmsVerificationRepository smsVerificationRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final BlacklistRepository blacklistRepository;
     private final JwtUtil jwtUtil;
@@ -50,6 +49,11 @@ public class UserService {
         if (!emailVerification.isVerificated()) {
             throw new IllegalArgumentException("이메일 인증이 완료되지 않았습니다.");
         }
+        SmsVerification smsVerification = smsVerificationRepository.findById(phone)
+                .orElseThrow(() -> new IllegalArgumentException("전화번호 인증 코드를 발송하지 않았습니다."));
+        if (!smsVerification.isVerificated()) {
+            throw new IllegalArgumentException("전화번호 인증이 완료되지 않았습니다.");
+        }
         // 회원 아이디 중복 확인
         Optional<User> checkUsername = userRepository.findByUsername(username);
         if (checkUsername.isPresent()) {
@@ -60,11 +64,7 @@ public class UserService {
         if (checkEmail.isPresent()) {
             throw new IllegalArgumentException("중복된 Email 입니다.");
         }
-        // phone 중복확인
-        Optional<User> phoneCheck = userRepository.findByPhone(phone);
-        if (phoneCheck.isPresent()) {
-            throw new IllegalArgumentException("중복된 전화번호 입니다.");
-        }
+
         // 사용자 ROLE 확인
         UserRoleEnum role = UserRoleEnum.USER;
         if (requestDto.isAdmin()) {

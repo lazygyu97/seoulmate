@@ -3,8 +3,10 @@ package com.sparta.seoulmate.controller;
 import com.sparta.seoulmate.dto.ApiResponseDto;
 import com.sparta.seoulmate.dto.EmailRequestDto;
 import com.sparta.seoulmate.dto.SignupRequestDto;
+import com.sparta.seoulmate.dto.SmsRequestDto;
 import com.sparta.seoulmate.security.UserDetailsImpl;
 import com.sparta.seoulmate.service.EmailService;
+import com.sparta.seoulmate.service.SmsService;
 import com.sparta.seoulmate.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -27,6 +29,7 @@ public class UserController {
 
     private final UserService userService;
     private final EmailService emailService;
+    private final SmsService smsService;
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponseDto> signUp(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
@@ -56,6 +59,16 @@ public class UserController {
     public ResponseEntity mailVerification(@RequestParam String email,@RequestParam String code){
         emailService.mailVerification(email,code);
         return ResponseEntity.ok().body("이메일이 인증되었습니다.");
+    }
+
+    @PostMapping("/signup/sms")
+    public ResponseEntity smsSend(@RequestBody SmsRequestDto requestDto) throws Exception {
+        return  ResponseEntity.status(201).body(smsService.smsSend(requestDto.getPhone()));
+    }
+    @GetMapping("/signup/sms")
+    public ResponseEntity smsVerification(@RequestParam String phone,@RequestParam String code) {
+        smsService.smsVerification(phone,code);
+        return ResponseEntity.ok().body("전화번호 인증이 완료되었습니다.");
     }
 
     @GetMapping("/logout")

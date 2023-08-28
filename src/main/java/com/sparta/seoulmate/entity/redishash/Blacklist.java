@@ -12,7 +12,6 @@ import org.springframework.data.redis.core.TimeToLive;
 public class Blacklist {
     @Id
     private String accessToken;
-
     @TimeToLive
     private Long expirationSeconds;
 }

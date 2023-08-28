@@ -22,18 +22,17 @@ public class PostController {
     private final PostService postService;
 
 
+    // 게시글 생성
     @PostMapping("/posts")
     public ResponseEntity<ApiResponseDto> createPost(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                      @RequestBody PostRequestDto requestDto) {
 
         postService.createPost(requestDto, userDetails.getUser());
 
-        return ResponseEntity.ok().body(new ApiResponseDto("카드 생성 성공!", HttpStatus.OK.value()));
+        return ResponseEntity.ok().body(new ApiResponseDto("게시글 생성 성공!", HttpStatus.OK.value()));
     }
 
-
-
-
+    // 게시글 전체 조회
     @GetMapping("/posts")
     public ResponseEntity<PostListResponseDto> getPosts() {
         PostListResponseDto result = postService.getPosts();
@@ -41,6 +40,7 @@ public class PostController {
         return ResponseEntity.ok().body(result);
     }
 
+    // 게시글 단건 조회
     @GetMapping("/posts/{id}")
     public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long id) {
         PostResponseDto result = postService.getPostById(id);
@@ -48,12 +48,7 @@ public class PostController {
         return ResponseEntity.ok().body(result);
     }
 
-
-
-
-
-
-
+    // 게시글 업데이트
     @PutMapping("/posts/{id}")
     public ResponseEntity<ApiResponseDto> updatePost(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                      @PathVariable Long id,
@@ -67,13 +62,7 @@ public class PostController {
         }
     }
 
-
-
-
-
-
-
-
+    // 게시글 삭제
     @DeleteMapping("/posts/{id}")
     public ResponseEntity<ApiResponseDto> deletePost(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                      @PathVariable Long id) {
@@ -84,5 +73,4 @@ public class PostController {
             return ResponseEntity.badRequest().body(new ApiResponseDto("작성자만 삭제 할 수 있습니다.", HttpStatus.BAD_REQUEST.value()));
         }
     }
-
 }

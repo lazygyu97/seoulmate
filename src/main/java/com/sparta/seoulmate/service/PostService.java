@@ -13,66 +13,61 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
 
-
-    public PostResponseDto createPost(PostRequestDto requestDto, User user) {
-        Post post = new Post(requestDto);
-        post.setUser(user);
+    // 게시글 생성
+    public PostResponseDto createPost(PostRequestDto requestDto, User author) {
+        Post post = requestDto.toEntity(author);
 
         postRepository.save(post);
-        return new PostResponseDto(post);
+        return PostResponseDto.of(post);
     }
 
-
+    // 전체 게시글 목록 조회
     public PostListResponseDto getPosts() {
-        List<PostResponseDto> postList = postRepository.findAll().stream()
-                .map(PostResponseDto::new)
-                .collect(Collectors.toList());
+        List<Post> postList = postRepository.findAll();
 
-        return new PostListResponseDto(postList);
+        return PostListResponseDto.of(postList);
     }
 
-
+    // 게시글 단건 조회
     public PostResponseDto getPostById(Long id) {
         Post post = findPost(id);
 
-        return new PostResponseDto(post);
+        return PostResponseDto.of(post);
     }
 
-
+    // 게시글 업데이트
     @Transactional
-    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user) {
+    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User author) {
         Post post = findPost(id);
 
-        if (!(user.getRole().equals(UserRoleEnum.ADMIN) || post.getAuthor().equals(user))) {
+        if (!(author.getRole().equals(UserRoleEnum.ADMIN) || post.getAuthor().equals(author))) {
             throw new RejectedExecutionException();
         }
 
-        post.setTitle(requestDto.getTitle());
-        post.setContent(requestDto.getContent());
+        post.updateTitle(requestDto.getTitle());
+        post.updateContent(requestDto.getContent());
 
-        return new PostResponseDto(post);
+        return PostResponseDto.of(post);
     }
 
-    public void deletePost(Long id, User user) {
+    // 게시글 삭제
+    public void deletePost(Long id, User author) {
         Post post = findPost(id);
 
-        if (!(user.getRole().equals(UserRoleEnum.ADMIN) || post.getAuthor().equals(user))) {
+        if (!(author.getRole().equals(UserRoleEnum.ADMIN) || post.getAuthor().equals(author))) {
             throw new RejectedExecutionException();
         }
-
         postRepository.delete(post);
     }
 
-
-
-    public Post findPost(Long id) {
+    // 게시글 Entity 단건 조회 private!!!!!
+    private Post findPost(Long id) {
         return postRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("선택한 게시글은 존재하지 않습니다.")
         );

@@ -1,15 +1,17 @@
 package com.sparta.seoulmate.dto;
 
 import com.sparta.seoulmate.entity.Post;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.validator.internal.util.privilegedactions.LoadClass;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-public class PostResponseDto extends ApiResponseDto{ // 왜?????
+
+public class PostResponseDto extends ApiResponseDto {
     private Long id;
     private String title;
     private String content;
@@ -17,12 +19,14 @@ public class PostResponseDto extends ApiResponseDto{ // 왜?????
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    public PostResponseDto(Post post) {
-        this.id = post.getId();
-        this.title = post.getTitle();
-        this.content = post.getContent();
-        this.image = post.getImage();
-        this.createdAt = post.getCreatedAt();
-        this.modifiedAt = post.getModifiedAt();
+    public static PostResponseDto of(Post post) {
+        return PostResponseDto.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .image(post.getImage())
+                .createdAt(post.getCreatedAt())
+                .modifiedAt(post.getModifiedAt())
+                .build();
     }
 }

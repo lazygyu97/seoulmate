@@ -6,6 +6,7 @@ import com.sparta.seoulmate.dto.comment.CommentResponseDto;
 import com.sparta.seoulmate.entity.Comment;
 import com.sparta.seoulmate.entity.Post;
 import com.sparta.seoulmate.entity.User;
+import com.sparta.seoulmate.entity.UserRoleEnum;
 import com.sparta.seoulmate.repository.CommentRepository;
 import com.sparta.seoulmate.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.concurrent.RejectedExecutionException;
 
 @Service
 @RequiredArgsConstructor
@@ -54,11 +54,12 @@ public class CommentService {
     public CommentResponseDto updateComment(Long commentId, User user, CommentRequestDto commentRequestDto) {
         Comment comment = findComment(commentId);
 
-        if(!comment.getAuthor().getId().equals(user.getId())) {
-            throw new RejectedExecutionException();
+        // 로그인한 사용자가 댓글 작성자이거나 관리자인 경우
+        if (user.getId().equals(comment.getAuthor().getId()) || user.getRole() == UserRoleEnum.ADMIN) {
+            comment.updateContent(commentRequestDto.getContent());
+        } else {
+            throw new IllegalStateException("댓글 수정 권한이 없습니다.");
         }
-
-        comment.updateContent(commentRequestDto.getContent());
 
         return CommentResponseDto.of(comment);
     }
@@ -68,11 +69,12 @@ public class CommentService {
     public void deleteComment(Long commentId, User user) {
         Comment comment = findComment(commentId);
 
-        if(!comment.getAuthor().getId().equals(user.getId())) {
-            throw new RejectedExecutionException();
+        // 로그인한 사용자가 댓글 작성자이거나 관리자인 경우
+        if (user.getId().equals(comment.getAuthor().getId()) || user.getRole() == UserRoleEnum.ADMIN) {
+            commentRepository.delete(comment);
+        } else {
+            throw new IllegalStateException("댓글 삭제 권한이 없습니다.");
         }
-        // or 연산자 써서 사용자 계정이 admin일 때 삭제할 수 있도록
-        commentRepository.delete(comment);
     }
 
     private Comment findComment(Long commentId) {

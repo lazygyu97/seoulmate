@@ -23,7 +23,7 @@ public class UserInterest {
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
-    private UserInterestEnum Categories;
+    private UserInterestEnum categories;
 
 
     @ManyToOne(fetch = FetchType.LAZY)

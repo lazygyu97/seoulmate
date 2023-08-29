@@ -1,8 +1,9 @@
 package com.sparta.seoulmate.service;
 
 import com.sparta.seoulmate.dto.SignupRequestDto;
+import com.sparta.seoulmate.dto.UpdateAddressRequestDto;
+import com.sparta.seoulmate.dto.UpdateNicknameRequestDto;
 import com.sparta.seoulmate.entity.User;
-import com.sparta.seoulmate.entity.UserGenderEnum;
 import com.sparta.seoulmate.entity.UserRoleEnum;
 import com.sparta.seoulmate.entity.redishash.Blacklist;
 import com.sparta.seoulmate.entity.redishash.EmailVerification;
@@ -33,6 +34,7 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final BlacklistRepository blacklistRepository;
     private final JwtUtil jwtUtil;
+    private final PostRepository postRepository;
 
     // ADMIN_TOKEN
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
@@ -102,4 +104,59 @@ public class UserService {
         }
     }
 
+
+//    @Transactional
+//    public void updateNickname(UpdateNicknameRequestDto requestDto, User user) {
+//
+//        User newuser = userRepository.findById(user.getId()).orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다"));
+//
+//        if (!newuser.getNickname().equals(user.getNickname())) {
+//            throw new IllegalArgumentException("수정 권한이 없습니다.");
+//        }
+//
+//        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
+//            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+//        }
+//        // 회원 중복 확인
+//        if (userRepository.findByNickname(requestDto.getNickname()).isPresent()) {
+//            throw new IllegalArgumentException("이미 사용중인 닉네임 입니다.");
+//        }
+//
+//        newuser.updateNickname(requestDto.getNickname());
+//    }
+
+    // 프로필 수정(닉네임)
+    @Transactional
+    public void updateNickname(UpdateNicknameRequestDto requestDto, User author) {
+        User targetUser = userRepository.findById(author.getId())
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다"));
+
+        if (!targetUser.getNickname().equals(author.getNickname())) {
+            throw new IllegalArgumentException("수정 권한이 없습니다.");
+        }
+
+        if (!passwordEncoder.matches(requestDto.getPassword(), author.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        // 회원 중복 확인 (새로운 닉네임에 대한 중복 확인)
+        Optional<User> checkNickname = userRepository.findByNickname(requestDto.getNickname());
+        if (checkNickname.isPresent() && !checkNickname.get().equals(targetUser)) {
+            throw new IllegalArgumentException("이미 사용중인 닉네임 입니다.");
+        }
+
+        targetUser.updateNickname(requestDto.getNickname());
+    }
+
+    // 프로필 수정(주소)
+    @Transactional
+    public void updateAddress(UpdateAddressRequestDto requestDto, User author) {
+        User targetUser = userRepository.findById(author.getId())
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다"));
+
+        if (!passwordEncoder.matches(requestDto.getPassword(), author.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+        targetUser.updateAddress(requestDto.getCity(), requestDto.getDistrict(), requestDto.getAddress());
+    }
 }

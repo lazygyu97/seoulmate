@@ -67,4 +67,13 @@ public class User extends Timestamped {
         return this;
     }
 
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateAddress(String city, String district, String address) {
+        this.city = city;
+        this.district = district;
+        this.address = address;
+    }
 }

@@ -1,9 +1,6 @@
 package com.sparta.seoulmate.controller;
 
-import com.sparta.seoulmate.dto.ApiResponseDto;
-import com.sparta.seoulmate.dto.EmailRequestDto;
-import com.sparta.seoulmate.dto.SignupRequestDto;
-import com.sparta.seoulmate.dto.SmsRequestDto;
+import com.sparta.seoulmate.dto.*;
 import com.sparta.seoulmate.security.UserDetailsImpl;
 import com.sparta.seoulmate.service.EmailService;
 import com.sparta.seoulmate.service.SmsService;
@@ -12,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Parameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -77,4 +75,38 @@ public class UserController {
         return ResponseEntity.ok().body("로그아웃 완료");
     }
 
+
+    // 프로필 수정(닉네임)
+    @PutMapping("/nickname")
+    public ResponseEntity<ApiResponseDto> updateNickname(
+            @RequestBody UpdateNicknameRequestDto requestDto,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        if (userDetails == null || userDetails.getUser() == null) {
+            // userDetails 가 null 인 경우 또는 userDetails.getUser()가 null 인 경우 처리
+            // 예를 들어, 인증되지 않은 사용자 또는 유효하지 않은 사용자의 요청일 수 있습니다.
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponseDto("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED.value()));
+        }
+
+        userService.updateNickname(requestDto, userDetails.getUser());
+        return ResponseEntity.ok().body(new ApiResponseDto("닉네임 변경이 완료되었습니다.", HttpStatus.OK.value()));
+    }
+
+    // 프로필 수정(주소)
+    @PutMapping("/address")
+    public ResponseEntity<ApiResponseDto> updateAddress(
+            @RequestBody UpdateAddressRequestDto requestDto,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        if (userDetails == null || userDetails.getUser() == null) {
+            // 사용자가 로그인하지 않은 경우 또는 인증 정보가 올바르게 전달되지 않은 경우 처리
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponseDto("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED.value()));
+        }
+
+        userService.updateAddress(requestDto, userDetails.getUser());
+        return ResponseEntity.ok().body(new ApiResponseDto("주소 변경이 완료되었습니다.", HttpStatus.OK.value()));
+    }
 }
+

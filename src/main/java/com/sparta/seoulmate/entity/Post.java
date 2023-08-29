@@ -51,6 +51,4 @@ public class Post extends Timestamped {
     public void updateContent(String content) {
         this.content = content;
     }
-
-
 }

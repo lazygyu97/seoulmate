@@ -104,27 +104,6 @@ public class UserService {
         }
     }
 
-
-//    @Transactional
-//    public void updateNickname(UpdateNicknameRequestDto requestDto, User user) {
-//
-//        User newuser = userRepository.findById(user.getId()).orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다"));
-//
-//        if (!newuser.getNickname().equals(user.getNickname())) {
-//            throw new IllegalArgumentException("수정 권한이 없습니다.");
-//        }
-//
-//        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-//            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-//        }
-//        // 회원 중복 확인
-//        if (userRepository.findByNickname(requestDto.getNickname()).isPresent()) {
-//            throw new IllegalArgumentException("이미 사용중인 닉네임 입니다.");
-//        }
-//
-//        newuser.updateNickname(requestDto.getNickname());
-//    }
-
     // 프로필 수정(닉네임)
     @Transactional
     public void updateNickname(UpdateNicknameRequestDto requestDto, User author) {

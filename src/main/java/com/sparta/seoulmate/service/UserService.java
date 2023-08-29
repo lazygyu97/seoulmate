@@ -3,6 +3,7 @@ package com.sparta.seoulmate.service;
 import com.sparta.seoulmate.dto.SignupRequestDto;
 import com.sparta.seoulmate.dto.UpdateAddressRequestDto;
 import com.sparta.seoulmate.dto.UpdateNicknameRequestDto;
+import com.sparta.seoulmate.dto.UserProfileResponseDto;
 import com.sparta.seoulmate.entity.User;
 import com.sparta.seoulmate.entity.UserRoleEnum;
 import com.sparta.seoulmate.entity.redishash.Blacklist;
@@ -137,5 +138,12 @@ public class UserService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
         targetUser.updateAddress(requestDto.getCity(), requestDto.getDistrict(), requestDto.getAddress());
+    }
+
+    // 프로필 조회
+    public UserProfileResponseDto getUserProfile(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("해당 ID를 찾을 수 없습니다. : " + id));
+        return UserProfileResponseDto.of(user);
     }
 }

@@ -63,7 +63,7 @@ public class PostService {
      * @param id 조회할 게시글 ID
      * @param requestDto 업데이트 할 게시글 정보
      * @param author 게시글 업데이트 요청자
-     * @return
+     * @return 업데이트된 게시글 정보
      */
     @Transactional
     public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User author) {

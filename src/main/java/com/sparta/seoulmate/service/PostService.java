@@ -66,7 +66,7 @@ public class PostService {
         postRepository.delete(post);
     }
 
-    // 게시글 Entity 단건 조회 private!!!!!
+    // 게시글 Entity 단건 조회
     private Post findPost(Long id) {
         return postRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("선택한 게시글은 존재하지 않습니다.")

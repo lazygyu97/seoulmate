@@ -1,5 +1,6 @@
 package com.sparta.seoulmate.service;
 
+import com.sparta.seoulmate.dto.FollowResponseDto;
 import com.sparta.seoulmate.dto.PostResponseDto;
 import com.sparta.seoulmate.entity.Follow;
 import com.sparta.seoulmate.entity.Post;
@@ -25,13 +26,43 @@ public class FollowService {
     private final FollowRepository followRepository;
     private final PostRepository postRepository;
 
+    // 내가 팔로우 한 사람 조회
+    public List<FollowResponseDto> viewFollowingList(User user) {
+        List<Follow> followList = followRepository.findAllByUser(user);
+        List<FollowResponseDto> followingResponseList = new ArrayList<>();
+        for (Follow follow : followList) {
+            FollowResponseDto followResponseDto = FollowResponseDto.builder()
+                    .id(follow.getFollowingUser().getId())
+                    .nickname(follow.getFollowingUser().getNickname())
+                    .image(follow.getFollowingUser().getImage())
+                    .build();
+            followingResponseList.add(followResponseDto);
+        }
+        return followingResponseList;
+    }
+
+    // 나를 팔로우 한 사람 조회
+    public List<FollowResponseDto> viewFollowerList(User user) {
+        List<Follow> followList = followRepository.findAllByFollowingUser(user);
+        List<FollowResponseDto> followerResponseList = new ArrayList<>();
+        for (Follow follow : followList) {
+            FollowResponseDto followResponseDto = FollowResponseDto.builder()
+                    .id(follow.getUser().getId())
+                    .nickname(follow.getUser().getNickname())
+                    .image(follow.getUser().getImage())
+                    .build();
+            followerResponseList.add(followResponseDto);
+        }
+        return followerResponseList;
+    }
+
+
+    // 내가 팔로우 한 사람의 포스트 조회
     public List<PostResponseDto> viewFollowingPostList(User user) {
         List<PostResponseDto> postList = new ArrayList<>();
-        List<Follow> follows = followRepository.findAllByUser(user);
-        List<User> userList = new ArrayList<>();
-        for (Follow follow : follows) {
-            userList.add(follow.getFollowingUser());
-        }
+        List<Follow> followList = followRepository.findAllByUser(user); // 내가 팔로우 한 사람 목록 불러오기
+        List<User> userList = followList.stream().map((Follow::getFollowingUser)).toList(); // 내가 팔로우 한 사람 목록을 UserList에 넣어주기
+        
         for (User foundUser : userList){
             List<Post> foundPostList =  postRepository.findAllByAuthor(foundUser);
             postList.addAll(foundPostList.stream().map(PostResponseDto::of).toList());
@@ -39,6 +70,7 @@ public class FollowService {
         return postList;
     }
 
+    // 팔로우 하기
     @Transactional
     public String following(@AuthenticationPrincipal UserDetailsImpl userDetails, Long id) {
         // 토큰 체크
@@ -73,6 +105,7 @@ public class FollowService {
         return followingUser.getNickname();
     }
 
+    // 언팔로우 하기
     @Transactional
     public String unfollowing(@AuthenticationPrincipal UserDetailsImpl userDetails, Long id) {
         // 토큰 체크

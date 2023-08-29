@@ -1,6 +1,7 @@
 package com.sparta.seoulmate.controller;
 
 import com.sparta.seoulmate.dto.ApiResponseDto;
+import com.sparta.seoulmate.dto.FollowResponseDto;
 import com.sparta.seoulmate.dto.PostResponseDto;
 import com.sparta.seoulmate.security.UserDetailsImpl;
 import com.sparta.seoulmate.service.FollowService;
@@ -28,14 +29,31 @@ public class FollowController {
     } // follow.html을 반환
     
 
-    // 나를 팔로우 한 사람, 내가 팔로우 한 사람, 내가 팔로우 한 사람의 포스트 확인하기
-    @GetMapping("/posts")
+    // 내가 팔로우 한 사람 조회
+    @GetMapping("/followingList")
+    @ResponseBody
+    public ResponseEntity<List<FollowResponseDto>> viewFollowingList(@AuthenticationPrincipal UserDetailsImpl userDetail){
+        List<FollowResponseDto> followRepositories = followService.viewFollowingList(userDetail.getUser());
+        return ResponseEntity.ok().body(followRepositories);
+    }
+
+    // 나를 팔로우 한 사람 조회
+    @GetMapping("/followerList")
+    @ResponseBody
+    public ResponseEntity<List<FollowResponseDto>> viewFollowerList(@AuthenticationPrincipal UserDetailsImpl userDetail){
+        List<FollowResponseDto> followRepositories = followService.viewFollowerList(userDetail.getUser());
+        return ResponseEntity.ok().body(followRepositories);
+    }
+
+    // 내가 팔로우 한 사람의 포스트 조회
+    @GetMapping("/postList")
     @ResponseBody
     public ResponseEntity<List<PostResponseDto>> viewFollowingPostList(@AuthenticationPrincipal UserDetailsImpl userDetail){
         List<PostResponseDto> postResponseDto = followService.viewFollowingPostList(userDetail.getUser());
         return ResponseEntity.ok().body(postResponseDto);
     }
 
+    // 팔로우 하기
     @PostMapping("/{userId}")
     @ResponseBody
     public ResponseEntity<ApiResponseDto> following(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long userId) {
@@ -43,6 +61,7 @@ public class FollowController {
         return ResponseEntity.ok().body(new ApiResponseDto(nickname + " 님을 팔로우 했습니다", HttpStatus.OK.value()));
     }
 
+    // 언팔로우 하기
     @DeleteMapping("/{userId}")
     @ResponseBody
     public ResponseEntity<ApiResponseDto> unfollowing(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long userId) {

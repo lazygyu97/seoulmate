@@ -75,6 +75,7 @@ public class PostController {
         }
     }
 
+    // 게시글 좋아요
     @PostMapping("/posts/{id}/likes")
     public ResponseEntity<ApiResponseDto> likePost(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -91,6 +92,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("게시글 좋아요 성공", HttpStatus.ACCEPTED.value()));
     }
 
+    // 게시글 좋아요 취소
     @DeleteMapping("/posts/{id}/likes")
     public ResponseEntity<ApiResponseDto> deleteLikePost(
             @AuthenticationPrincipal UserDetailsImpl userDetails,

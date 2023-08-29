@@ -24,7 +24,12 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
 
-    // 게시글 생성
+    /**
+     * 게시글 생성
+     * @param requestDto 게시글 생성 요청정보
+     * @param author 게시글 생성 요청자
+     * @return 게시글 생성 결과
+     */
     public PostResponseDto createPost(PostRequestDto requestDto, User author) {
         Post post = requestDto.toEntity(author);
 
@@ -32,21 +37,34 @@ public class PostService {
         return PostResponseDto.of(post);
     }
 
-    // 전체 게시글 목록 조회
+    /**
+     * 전체 게시글 목록 조회
+     * @return 전체 게시글 목록
+     */
     public PostListResponseDto getPosts() {
         List<Post> postList = postRepository.findAll();
 
         return PostListResponseDto.of(postList);
     }
 
-    // 게시글 단건 조회
+    /**
+     * 게시글 단건 조회
+     * @param id 조회할 게시글 ID
+     * @return 조회된 게시글 정보
+     */
     public PostResponseDto getPostById(Long id) {
         Post post = findPost(id);
 
         return PostResponseDto.of(post);
     }
 
-    // 게시글 업데이트
+    /**
+     * 게시글 업데이트
+     * @param id 조회할 게시글 ID
+     * @param requestDto 업데이트 할 게시글 정보
+     * @param author 게시글 업데이트 요청자
+     * @return
+     */
     @Transactional
     public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User author) {
         Post post = findPost(id);
@@ -61,7 +79,11 @@ public class PostService {
         return PostResponseDto.of(post);
     }
 
-    // 게시글 삭제
+    /**
+     * 게시글 삭제
+     * @param id 삭제할 게시글 ID
+     * @param author 게시글 삭제 요청자
+     */
     public void deletePost(Long id, User author) {
         Post post = findPost(id);
 
@@ -71,6 +93,11 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    /**
+     * 게시글 좋아요
+     * @param id 좋아요 누를 게시글의 ID
+     * @param user 게시글 좋아요 요청자
+     */
     @Transactional
     public void likePost(Long id, User user) {
         Post post = findPost(id);
@@ -83,6 +110,11 @@ public class PostService {
         }
     }
 
+    /**
+     * 게시글 좋아요 취소
+     * @param id 좋아요 취소할 게시글의 ID
+     * @param user 게시글 좋아요 취소 요청자
+     */
     @Transactional
     public void deleteLikePost(Long id, User user) {
         Post post = findPost(id);
@@ -94,8 +126,11 @@ public class PostService {
         }
     }
 
-
-    // 게시글 Entity 단건 조회
+    /**
+     * 게시글 Entity 단건 조회
+     * @param id 조회할 게시글 ID
+     * @return 게시글 Entity
+     */
     private Post findPost(Long id) {
         return postRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("선택한 게시글은 존재하지 않습니다.")

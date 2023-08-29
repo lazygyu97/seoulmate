@@ -37,7 +37,7 @@ public enum UserInterestEnum {
     YOUTHSPACE("청년공간", SPACE),//code=T500&dCode=T514
     ETCSPACE("민원 등 기타", SPACE),//code=T500&dCode=T510
 
-    CULTURE("문화체헐", ROOT),//code=T200&dCode=
+    CULTURE("문화체험", ROOT),//code=T200&dCode=
     EDUCATIONEX("교육체험", CULTURE),//code=T200&dCode=T205
     FARM("농장체험", CULTURE),//code=T200&dCode=T206
     CULTUREEVENT("문화행사", CULTURE),//code=T200&dCode=T204
@@ -84,7 +84,12 @@ public enum UserInterestEnum {
             parentCategory.childCategories.add(this);
         }
     }
-
+    public static UserInterestEnum fromTitle(String title) {
+        return Arrays.stream(values())
+                .filter(category -> category.title.equals(title))
+                .findFirst()
+                .orElse(null); // 또는 원하는 방식으로 처리
+    }
     public String getTitle() {
         return title;
     }

@@ -34,7 +34,7 @@ public class Follow {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "following_user_id", nullable = false)
-    private User followingUser; // 내가 팔로우 하는 사용자 나 -> 사용자.
+    private User followingUser; // 내가 팔로우 하는 사용자 / 나 -> 사용자.
 
     //팔로잉 한 일시
     @Column

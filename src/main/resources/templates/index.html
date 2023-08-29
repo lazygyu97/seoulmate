@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropdown Menu Example</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .dropdown-item {
+            width: 200px;
+        }
+
+        .child-list {
+            position: static;
+            display: none;
+            width: 100%;
+            border: none;
+        }
+
+        .dropdown-item:hover .child-list {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="dropdown">
+    <div class="dropdown-content">
+    </div>
+</div>
+<button id="submitBtn">Submit</button>
+
+<script>
+    $(document).ready(function () {
+        const selectedCategories = new Set();
+        const apiUrl = "/test";
+
+        $.ajax({
+            url: apiUrl,
+            method: "GET",
+            dataType: "json",
+            success: function (data) {
+                const dropdownContent = $(".dropdown-content");
+
+                $.each(data.categoriesWithInfo, function (parentTitle, childList) {
+                    const parentItem = $("<div>").addClass("dropdown-item");
+
+                    const childListUl = $("<ul>").addClass("child-list");
+                    $.each(childList, function (index, childInfo) {
+                        const childItem = $("<li>").text(childInfo.title);
+                        const childCheckbox = $("<input>").attr({
+                            type: "checkbox",
+                            value: childInfo.title
+                        }).addClass("category-checkbox");
+                        childItem.prepend(childCheckbox);
+                        childListUl.append(childItem);
+                    });
+
+                    parentItem.append($("<strong>").text(parentTitle), childListUl);
+                    dropdownContent.append(parentItem);
+                });
+
+                // Add change event to checkboxes
+                $(".category-checkbox").change(function () {
+                    const category = $(this).val();
+                    if ($(this).prop("checked")) {
+                        selectedCategories.add(category);
+                    } else {
+                        selectedCategories.delete(category);
+                    }
+                });
+
+                $("#submitBtn").click(function () {
+                    const selectedCategoryArray = Array.from(selectedCategories);
+                    console.log("Selected categories:", selectedCategoryArray);
+                    $.ajax({
+                        url: "/test",
+                        method: "POST",
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(selectedCategoryArray),
+                        success: function (response) {
+                            // Handle success
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error:", error);
+                        }
+                    });
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching categories: " + error);
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -107,15 +107,15 @@ public class UserService {
 
     // 프로필 수정(닉네임)
     @Transactional
-    public void updateNickname(UpdateNicknameRequestDto requestDto, User author) {
-        User targetUser = userRepository.findById(author.getId())
+    public void updateNickname(UpdateNicknameRequestDto requestDto, User user) {
+        User targetUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다"));
 
-        if (!targetUser.getNickname().equals(author.getNickname())) {
+        if (!targetUser.getNickname().equals(user.getNickname())) {
             throw new IllegalArgumentException("수정 권한이 없습니다.");
         }
 
-        if (!passwordEncoder.matches(requestDto.getPassword(), author.getPassword())) {
+        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
@@ -130,11 +130,11 @@ public class UserService {
 
     // 프로필 수정(주소)
     @Transactional
-    public void updateAddress(UpdateAddressRequestDto requestDto, User author) {
-        User targetUser = userRepository.findById(author.getId())
+    public void updateAddress(UpdateAddressRequestDto requestDto, User user) {
+        User targetUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다"));
 
-        if (!passwordEncoder.matches(requestDto.getPassword(), author.getPassword())) {
+        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
         targetUser.updateAddress(requestDto.getCity(), requestDto.getDistrict(), requestDto.getAddress());

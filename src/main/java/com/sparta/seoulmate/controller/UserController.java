@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.Parameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,7 +34,7 @@ public class UserController {
         // Validation 예외처리 : 아이디와 패스워드가 pattern에 맞게 입력 되었는지 확인.
         List<FieldError> fieldErrors = bindingResult.getFieldErrors();
 
-        if(fieldErrors.size() > 0) {
+        if (fieldErrors.size() > 0) {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
                 log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
             }
@@ -54,23 +53,24 @@ public class UserController {
     }
 
     @GetMapping("/signup/mail")
-    public ResponseEntity mailVerification(@RequestParam String email,@RequestParam String code){
-        emailService.mailVerification(email,code);
+    public ResponseEntity mailVerification(@RequestParam String email, @RequestParam String code) {
+        emailService.mailVerification(email, code);
         return ResponseEntity.ok().body("이메일이 인증되었습니다.");
     }
 
     @PostMapping("/signup/sms")
     public ResponseEntity smsSend(@RequestBody SmsRequestDto requestDto) throws Exception {
-        return  ResponseEntity.status(201).body(smsService.smsSend(requestDto.getPhone()));
+        return ResponseEntity.status(201).body(smsService.smsSend(requestDto.getPhone()));
     }
+
     @GetMapping("/signup/sms")
-    public ResponseEntity smsVerification(@RequestParam String phone,@RequestParam String code) {
-        smsService.smsVerification(phone,code);
+    public ResponseEntity smsVerification(@RequestParam String phone, @RequestParam String code) {
+        smsService.smsVerification(phone, code);
         return ResponseEntity.ok().body("전화번호 인증이 완료되었습니다.");
     }
 
     @GetMapping("/logout")
-    public ResponseEntity logout(@AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletRequest request){
+    public ResponseEntity logout(@AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletRequest request) {
         userService.logout(userDetails.getUser(), request);
         return ResponseEntity.ok().body("로그아웃 완료");
     }

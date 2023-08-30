@@ -1,13 +1,13 @@
 package com.sparta.seoulmate.controller;
 
 import com.sparta.seoulmate.dto.ApiResponseDto;
-import com.sparta.seoulmate.dto.PostListResponseDto;
 import com.sparta.seoulmate.dto.PostRequestDto;
 import com.sparta.seoulmate.dto.PostResponseDto;
 import com.sparta.seoulmate.security.UserDetailsImpl;
 import com.sparta.seoulmate.service.PostService;
 import com.sun.jdi.request.DuplicateRequestException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,11 +33,13 @@ public class PostController {
         return ResponseEntity.ok().body(new ApiResponseDto("게시글 생성 성공!", HttpStatus.OK.value()));
     }
 
-    // 게시글 전체 조회
     @GetMapping("/posts")
-    public ResponseEntity<PostListResponseDto> getPosts() {
-        PostListResponseDto result = postService.getPosts();
-
+    public ResponseEntity<Page<PostResponseDto>> getPosts(
+            @RequestParam("page") int page,
+            @RequestParam("size") int size,
+            @RequestParam("sortBy") String sortBy,
+            @RequestParam("isAsc") boolean isAsc) {
+        Page<PostResponseDto> result = postService.getPosts(page, size, sortBy, isAsc);
         return ResponseEntity.ok().body(result);
     }
 

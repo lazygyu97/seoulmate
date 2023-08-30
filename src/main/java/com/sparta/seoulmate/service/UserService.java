@@ -1,6 +1,7 @@
 package com.sparta.seoulmate.service;
 
 import com.sparta.seoulmate.dto.*;
+import com.sparta.seoulmate.entity.PasswordManager;
 import com.sparta.seoulmate.entity.User;
 import com.sparta.seoulmate.entity.UserRoleEnum;
 import com.sparta.seoulmate.entity.redishash.*;
@@ -31,7 +32,7 @@ public class UserService {
     private final BlacklistRepository blacklistRepository;
     private final JwtUtil jwtUtil;
     private final PostRepository postRepository;
-    private final PasswordRepository passwordRepository;
+    private final PasswordManagerRepository passwordManagerRepository;
 
     // ADMIN_TOKEN
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
@@ -74,8 +75,11 @@ public class UserService {
         }
 
         // 사용자 등록
-        User user = requestDto.toEntity(role,password);
+        User user = requestDto.toEntity(role, password);
         userRepository.save(user);
+
+        // 회원가입 했을 때 썼던 비밀번호 저장
+        passwordManagerRepository.save(new PasswordManager(user, password));
     }
 
     public void logout(User user, HttpServletRequest request) {
@@ -143,37 +147,26 @@ public class UserService {
         return UserProfileResponseDto.of(user);
     }
 
-    // 프로필 수정 (비밀번호)
     @Transactional
-    public void updatePassword(UpdatePasswordRequestDto requestDto, User user) {
-        String encodedPassword = passwordEncoder.encode(requestDto.getUpdatePassword());
-        Password updatePassword = requestDto.toEntity(user, encodedPassword);
+    public void updatePassword (UpdatePasswordRequestDto requestDto, User user) {
 
-        List<Password> list = passwordRepository.findByMemberId(user.getId());
-        for (Password lists : list) {
-            System.out.println(lists.getMemberId());
-        }
+        // 최근 3번 사용한 비밀번호 조회
+        List<PasswordManager> passwordList = passwordManagerRepository.findTop4ByUserOrderByCreatedAtDesc(user);
 
-        // 비밀번호 변경 기록이 없는 사용자(null)는 비밀번호 기록 바로 추가
-        if (passwordRepository.findByMemberId(user.getId()).size() == 0) {
-            passwordRepository.save(updatePassword); // toEntity
-            System.out.println("check!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        } else {
-            // redis에 담긴 username 찾아오기
-//            List<Password> list = passwordRepository.findByUserId(user.getId());
-            for (Password lists : list) {
-                // 변경된 비밀번호와 변경될 비밀번호 비교
-                if (lists.getUpdatedPassword().matches(encodedPassword)) {
-                    throw new IllegalArgumentException("이미 3회 이내 변경되었던 비밀번호입니다.");
-                }
-                passwordRepository.save(updatePassword);
+        for (PasswordManager passwordHistory : passwordList) {
+            if (passwordEncoder.matches(requestDto.getUpdatePassword(), passwordHistory.getUpdatePassword())) {
+                throw new IllegalArgumentException("최근 3번 사용한 비밀번호는 사용할 수 없습니다.");
             }
         }
 
-        // 사용자의 비밀번호를 업데이트하고 저장
-        user.updatePassword(encodedPassword);
+        requestDto.updatePassword(passwordEncoder.encode(requestDto.getUpdatePassword()));
+        // 받아온 비밀번호 암호화 시켜줌
+
+        User targetUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다"));
+
+        targetUser.updatePassword(requestDto); // 패스워드 업데이트 메소드 호출
+
+        passwordManagerRepository.save(new PasswordManager(user, requestDto.getUpdatePassword()));
     }
-
-
-
 }

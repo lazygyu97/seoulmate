@@ -1,4 +1,4 @@
-package com.sparta.seoulmate.controller.comment;
+package com.sparta.seoulmate.controller;
 
 import com.sparta.seoulmate.dto.ApiResponseDto;
 import com.sparta.seoulmate.dto.comment.CommentListResponseDto;
@@ -10,10 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,5 +53,19 @@ public class CommentController {
     public ResponseEntity<ApiResponseDto> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         commentService.deleteComment(commentId, userDetails.getUser());
         return ResponseEntity.ok().body(new ApiResponseDto("댓글 삭제 성공", HttpStatus.OK.value()));
+    }
+
+    //Comment 좋아요 추가
+    @PostMapping("/commentLike/{commentId}")
+    public ResponseEntity<ApiResponseDto> likeComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long commentId) throws Exception {
+        commentService.likeComment(userDetails, commentId);
+        return ResponseEntity.ok().body(new ApiResponseDto("좋아요 성공", HttpStatus.OK.value()));
+    }
+
+    //Comment 좋아요 해제
+    @DeleteMapping("/commentLike/{commentId}")
+    public ResponseEntity<ApiResponseDto> deleteLikeComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long commentId){
+        commentService.deleteLikeComment(userDetails, commentId);
+        return ResponseEntity.ok().body(new ApiResponseDto("좋아요 취소 성공", HttpStatus.OK.value()));
     }
 }

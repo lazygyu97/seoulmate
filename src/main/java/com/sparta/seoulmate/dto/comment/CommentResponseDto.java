@@ -9,7 +9,6 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @Builder
 public class CommentResponseDto extends ApiResponseDto {
     private Long id;

@@ -51,15 +51,27 @@ public class UserController {
     }
 
     // 사용자의 관심사 등록
-    @PostMapping("/users/interest")
+    @PostMapping("/interest")
     public ResponseEntity<ApiResponseDto> saveInterest(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                       @RequestBody List<String> list){
-        for (String lists:list){
-            System.out.println(lists);
-        }
-        System.out.println("담기 시도");
-        interestService.saveInterest(userDetails.getUser(),list);
+                                                       @RequestBody List<String> list) {
+
+        interestService.saveInterest(userDetails.getUser(), list);
         return ResponseEntity.ok().body(new ApiResponseDto("관심사 등록 성공", HttpStatus.OK.value()));
+
+    }
+    // 사용자의 관심사 목록
+    @GetMapping("/interest")
+    public ResponseEntity<InterestListResponseDto> getInterest(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        InterestListResponseDto result= interestService.getInterest(userDetails.getUser());
+        return ResponseEntity.ok().body(result);
+
+    }
+    // 사용자의 관심사 목록 수정
+    @PutMapping("/interest")
+    public ResponseEntity<ApiResponseDto> updateInterest(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody List<String> list) {
+         interestService.updateInterest(userDetails.getUser(),list);
+        return ResponseEntity.ok().body(new ApiResponseDto("관심사 수정 성공", HttpStatus.OK.value()));
 
     }
 
@@ -127,13 +139,19 @@ public class UserController {
 
         userService.updateAddress(requestDto, userDetails.getUser());
         return ResponseEntity.ok().body(new ApiResponseDto("주소 변경이 완료되었습니다.", HttpStatus.OK.value()));
+    }
 
     //관심사 등록 할때 쓰일 카테고리 테스트 코드
     @GetMapping("/test")
-    public ResponseEntity<CategoryResponseDto> getCategory() {
+    public ResponseEntity<CategoryResponseDto> getCategory () {
         CategoryResponseDto responseDto = new CategoryResponseDto();
         return ResponseEntity.ok().body(responseDto);
+    }
 
+    // 프로필 조회
+    @GetMapping("/{id}/profile")
+    public ResponseEntity<UserProfileResponseDto> getUserProfile(@PathVariable Long id) {
+        UserProfileResponseDto result = userService.getUserProfile(id);
+        return ResponseEntity.ok().body(result);
     }
 }
-

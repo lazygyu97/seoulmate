@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 
 @Builder
 @AllArgsConstructor
@@ -23,7 +21,7 @@ public class UserInterest {
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
-    private UserInterestEnum categories;
+    private UserInterestEnum interests;
 
 
     @ManyToOne(fetch = FetchType.LAZY)

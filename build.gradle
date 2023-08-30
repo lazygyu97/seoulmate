@@ -75,6 +75,8 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
     // SMS 인증
     implementation 'net.nurigo:sdk:4.3.0'
+    // json
+    implementation 'org.json:json:20230227'
 
 }
 

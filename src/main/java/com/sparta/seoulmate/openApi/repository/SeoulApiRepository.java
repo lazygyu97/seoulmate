@@ -16,5 +16,5 @@ public interface SeoulApiRepository extends JpaRepository<SeoulApi,Long> {
     @Query(value = "truncate seoul_apis", nativeQuery = true)
     void truncateTable();
 
-    List<SeoulApi> findByMAXCLASSNMAndSVCSTATNM(String maxClassNm, String svcStatNm);;
+    List<SeoulApi> findByMAXCLASSNMAndSVCSTATNM(String maxClassNm, String svcStatNm);
 }

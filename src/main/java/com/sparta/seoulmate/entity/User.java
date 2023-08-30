@@ -80,4 +80,8 @@ public class User extends Timestamped {
         this.district = district;
         this.address = address;
     }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }

@@ -1,15 +1,9 @@
 package com.sparta.seoulmate.service;
 
-import com.sparta.seoulmate.dto.SignupRequestDto;
-import com.sparta.seoulmate.dto.UpdateAddressRequestDto;
-import com.sparta.seoulmate.dto.UpdateNicknameRequestDto;
-import com.sparta.seoulmate.dto.UserProfileResponseDto;
+import com.sparta.seoulmate.dto.*;
 import com.sparta.seoulmate.entity.User;
 import com.sparta.seoulmate.entity.UserRoleEnum;
-import com.sparta.seoulmate.entity.redishash.Blacklist;
-import com.sparta.seoulmate.entity.redishash.EmailVerification;
-import com.sparta.seoulmate.entity.redishash.RefreshToken;
-import com.sparta.seoulmate.entity.redishash.SmsVerification;
+import com.sparta.seoulmate.entity.redishash.*;
 import com.sparta.seoulmate.jwt.JwtUtil;
 import com.sparta.seoulmate.repository.*;
 import io.jsonwebtoken.Jwts;
@@ -21,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -36,6 +31,7 @@ public class UserService {
     private final BlacklistRepository blacklistRepository;
     private final JwtUtil jwtUtil;
     private final PostRepository postRepository;
+    private final PasswordRepository passwordRepository;
 
     // ADMIN_TOKEN
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
@@ -146,4 +142,38 @@ public class UserService {
                 new IllegalArgumentException("해당 ID를 찾을 수 없습니다. : " + id));
         return UserProfileResponseDto.of(user);
     }
+
+    // 프로필 수정 (비밀번호)
+    @Transactional
+    public void updatePassword(UpdatePasswordRequestDto requestDto, User user) {
+        String encodedPassword = passwordEncoder.encode(requestDto.getUpdatePassword());
+        Password updatePassword = requestDto.toEntity(user, encodedPassword);
+
+        List<Password> list = passwordRepository.findByMemberId(user.getId());
+        for (Password lists : list) {
+            System.out.println(lists.getMemberId());
+        }
+
+        // 비밀번호 변경 기록이 없는 사용자(null)는 비밀번호 기록 바로 추가
+        if (passwordRepository.findByMemberId(user.getId()).size() == 0) {
+            passwordRepository.save(updatePassword); // toEntity
+            System.out.println("check!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        } else {
+            // redis에 담긴 username 찾아오기
+//            List<Password> list = passwordRepository.findByUserId(user.getId());
+            for (Password lists : list) {
+                // 변경된 비밀번호와 변경될 비밀번호 비교
+                if (lists.getUpdatedPassword().matches(encodedPassword)) {
+                    throw new IllegalArgumentException("이미 3회 이내 변경되었던 비밀번호입니다.");
+                }
+                passwordRepository.save(updatePassword);
+            }
+        }
+
+        // 사용자의 비밀번호를 업데이트하고 저장
+        user.updatePassword(encodedPassword);
+    }
+
+
+
 }

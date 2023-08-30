@@ -51,15 +51,27 @@ public class UserController {
     }
 
     // 사용자의 관심사 등록
-    @PostMapping("/users/interest")
+    @PostMapping("/interest")
     public ResponseEntity<ApiResponseDto> saveInterest(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                        @RequestBody List<String> list) {
-        for (String lists : list) {
-            System.out.println(lists);
-        }
-        System.out.println("담기 시도");
+
         interestService.saveInterest(userDetails.getUser(), list);
         return ResponseEntity.ok().body(new ApiResponseDto("관심사 등록 성공", HttpStatus.OK.value()));
+
+    }
+    // 사용자의 관심사 목록
+    @GetMapping("/interest")
+    public ResponseEntity<InterestListResponseDto> getInterest(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        InterestListResponseDto result= interestService.getInterest(userDetails.getUser());
+        return ResponseEntity.ok().body(result);
+
+    }
+    // 사용자의 관심사 목록 수정
+    @PutMapping("/interest")
+    public ResponseEntity<ApiResponseDto> updateInterest(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody List<String> list) {
+         interestService.updateInterest(userDetails.getUser(),list);
+        return ResponseEntity.ok().body(new ApiResponseDto("관심사 수정 성공", HttpStatus.OK.value()));
 
     }
 

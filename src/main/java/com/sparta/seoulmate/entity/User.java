@@ -61,6 +61,10 @@ public class User extends Timestamped {
     @Enumerated(value = EnumType.STRING)
     private UserGenderEnum gender;
 
+    @Builder.Default
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserInterest> userInterests = new ArrayList<>();
+
     public User update(String nickname, String profileImageUrl) {
         this.nickname = nickname;
         this.image = profileImageUrl;

@@ -25,7 +25,7 @@ public class Follow {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     // 외래키로 user_id 받아오기
     @ManyToOne

@@ -134,7 +134,12 @@ public class UserController {
     public ResponseEntity<CategoryResponseDto> getCategory () {
         CategoryResponseDto responseDto = new CategoryResponseDto();
         return ResponseEntity.ok().body(responseDto);
-
     }
 
+    // 프로필 조회
+    @GetMapping("/{id}/profile")
+    public ResponseEntity<UserProfileResponseDto> getUserProfile(@PathVariable Long id) {
+        UserProfileResponseDto result = userService.getUserProfile(id);
+        return ResponseEntity.ok().body(result);
+    }
 }

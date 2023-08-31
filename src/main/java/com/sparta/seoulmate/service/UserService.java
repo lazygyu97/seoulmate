@@ -1,15 +1,10 @@
 package com.sparta.seoulmate.service;
 
-import com.sparta.seoulmate.dto.SignupRequestDto;
-import com.sparta.seoulmate.dto.UpdateAddressRequestDto;
-import com.sparta.seoulmate.dto.UpdateNicknameRequestDto;
-import com.sparta.seoulmate.dto.UserProfileResponseDto;
+import com.sparta.seoulmate.dto.*;
+import com.sparta.seoulmate.entity.PasswordManager;
 import com.sparta.seoulmate.entity.User;
 import com.sparta.seoulmate.entity.UserRoleEnum;
-import com.sparta.seoulmate.entity.redishash.Blacklist;
-import com.sparta.seoulmate.entity.redishash.EmailVerification;
-import com.sparta.seoulmate.entity.redishash.RefreshToken;
-import com.sparta.seoulmate.entity.redishash.SmsVerification;
+import com.sparta.seoulmate.entity.redishash.*;
 import com.sparta.seoulmate.jwt.JwtUtil;
 import com.sparta.seoulmate.repository.*;
 import io.jsonwebtoken.Jwts;
@@ -21,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -36,6 +32,7 @@ public class UserService {
     private final BlacklistRepository blacklistRepository;
     private final JwtUtil jwtUtil;
     private final PostRepository postRepository;
+    private final PasswordManagerRepository passwordManagerRepository;
 
     // ADMIN_TOKEN
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
@@ -78,8 +75,11 @@ public class UserService {
         }
 
         // 사용자 등록
-        User user = requestDto.toEntity(role,password);
+        User user = requestDto.toEntity(role, password);
         userRepository.save(user);
+
+        // 회원가입 했을 때 썼던 비밀번호 저장
+        passwordManagerRepository.save(new PasswordManager(user, password));
     }
 
     public void logout(User user, HttpServletRequest request) {
@@ -145,5 +145,28 @@ public class UserService {
         User user = userRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("해당 ID를 찾을 수 없습니다. : " + id));
         return UserProfileResponseDto.of(user);
+    }
+
+    @Transactional
+    public void updatePassword (UpdatePasswordRequestDto requestDto, User user) {
+
+        // 최근 3번 사용한 비밀번호 조회
+        List<PasswordManager> passwordList = passwordManagerRepository.findTop4ByUserOrderByCreatedAtDesc(user);
+
+        for (PasswordManager passwordHistory : passwordList) {
+            if (passwordEncoder.matches(requestDto.getUpdatePassword(), passwordHistory.getUpdatePassword())) {
+                throw new IllegalArgumentException("최근 3번 사용한 비밀번호는 사용할 수 없습니다.");
+            }
+        }
+
+        requestDto.updatePassword(passwordEncoder.encode(requestDto.getUpdatePassword()));
+        // 받아온 비밀번호 암호화 시켜줌
+
+        User targetUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다"));
+
+        targetUser.updatePassword(requestDto); // 패스워드 업데이트 메소드 호출
+
+        passwordManagerRepository.save(new PasswordManager(user, requestDto.getUpdatePassword()));
     }
 }

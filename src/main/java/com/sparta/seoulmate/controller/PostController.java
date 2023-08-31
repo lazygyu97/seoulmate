@@ -39,7 +39,7 @@ public class PostController {
             @RequestParam("size") int size,
             @RequestParam("sortBy") String sortBy,
             @RequestParam("isAsc") boolean isAsc) {
-        Page<PostResponseDto> result = postService.getPosts(page, size, sortBy, isAsc);
+        Page<PostResponseDto> result = postService.getPosts(page-1, size, sortBy, isAsc);
         return ResponseEntity.ok().body(result);
     }
 

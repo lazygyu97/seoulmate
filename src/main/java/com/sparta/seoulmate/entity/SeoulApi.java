@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.json.JSONObject;
 
 @Builder
 @AllArgsConstructor
@@ -13,17 +14,15 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "seoul_apis")
 public class SeoulApi {
+    //    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY) // 수동 방식... uuid ...!
+//    private Long id;
+// 서비스 ID를 나타내는 필드
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 수동 방식... uuid ...!
-    private Long id;
-
+    private String SVCID;
     // 서비스 구분을 나타내는 필드
     @Column
     private String GUBUN;
-
-    // 서비스 ID를 나타내는 필드
-    @Column
-    private String SVCID;
 
     // 대분류명을 나타내는 필드
     @Column
@@ -116,4 +115,32 @@ public class SeoulApi {
     @Column
     private String REVSTDDAY;
 
+    public void update(JSONObject itemJson) {
+            SeoulApi.builder()
+                .GUBUN(itemJson.getString("GUBUN"))
+                .SVCID(itemJson.getString("SVCID"))
+                .MAXCLASSNM(itemJson.getString("MAXCLASSNM"))
+                .MINCLASSNM(itemJson.getString("MINCLASSNM"))
+                .SVCSTATNM(itemJson.getString("SVCSTATNM"))
+                .SVCNM(itemJson.getString("SVCNM"))
+                .PAYATNM(itemJson.getString("PAYATNM"))
+                .PLACENM(itemJson.getString("PLACENM"))
+                .USETGTINFO(itemJson.getString("USETGTINFO"))
+                .SVCURL(itemJson.getString("SVCURL"))
+                .X(itemJson.getString("X"))
+                .Y(itemJson.getString("Y"))
+                .SVCOPNBGNDT(itemJson.getString("SVCOPNBGNDT"))
+                .SVCOPNENDDT(itemJson.getString("SVCOPNENDDT"))
+                .RCPTBGNDT(itemJson.getString("RCPTBGNDT"))
+                .RCPTENDDT(itemJson.getString("RCPTENDDT"))
+                .AREANM(itemJson.getString("AREANM"))
+                .IMGURL(itemJson.getString("IMGURL"))
+                .DTLCONT(itemJson.getString("DTLCONT"))
+                .TELNO(itemJson.getString("TELNO"))
+                .V_MIN(itemJson.getString("V_MIN"))
+                .V_MAX(itemJson.getString("V_MAX"))
+                .REVSTDDAYNM(itemJson.getString("REVSTDDAYNM"))
+                .REVSTDDAY(itemJson.getString("REVSTDDAY"))
+                .build();
+    }
 }

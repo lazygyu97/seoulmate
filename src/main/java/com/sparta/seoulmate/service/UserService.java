@@ -1,6 +1,8 @@
 package com.sparta.seoulmate.service;
 
+import com.sparta.seoulmate.config.FileComponent;
 import com.sparta.seoulmate.dto.*;
+import com.sparta.seoulmate.entity.Image;
 import com.sparta.seoulmate.entity.PasswordManager;
 import com.sparta.seoulmate.entity.User;
 import com.sparta.seoulmate.entity.UserRoleEnum;
@@ -13,7 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
@@ -31,8 +35,9 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final BlacklistRepository blacklistRepository;
     private final JwtUtil jwtUtil;
-    private final PostRepository postRepository;
     private final PasswordManagerRepository passwordManagerRepository;
+    private final FileComponent fileComponent;
+    private final ImageRepository imageRepository;
 
     // ADMIN_TOKEN
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
@@ -148,7 +153,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updatePassword (UpdatePasswordRequestDto requestDto, User user) {
+    public void updatePassword(UpdatePasswordRequestDto requestDto, User user) {
 
         // 최근 3번 사용한 비밀번호 조회
         List<PasswordManager> passwordList = passwordManagerRepository.findTop4ByUserOrderByCreatedAtDesc(user);
@@ -168,5 +173,42 @@ public class UserService {
         targetUser.updatePassword(requestDto); // 패스워드 업데이트 메소드 호출
 
         passwordManagerRepository.save(new PasswordManager(user, requestDto.getUpdatePassword()));
+    }
+
+    @Transactional
+    public void updateImage(MultipartFile file, User user) {
+        User targetUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다"));
+
+        if (!targetUser.getNickname().equals(user.getNickname())) {
+            throw new IllegalArgumentException("수정 권한이 없습니다.");
+        }
+
+        // file 비어있는지 확인
+        try {
+            if (file != null) {
+                String storedFileName = fileComponent.upload(file);
+
+                // 이미 프로필 이미지가 있는 경우 업데이트, 없으면 새로 생성
+                Optional<Image> optionalUserImage = imageRepository.findByUserId(user.getId());
+                Image userImage;
+                if (optionalUserImage.isPresent()) {
+                    userImage = optionalUserImage.get();
+                    userImage.update(storedFileName);
+                } else {
+                    userImage = Image.builder().user(user).imageUrl(storedFileName).build();
+                }
+
+                // 이미지 중복 확인 (이미 사용 중인 이미지는 아닌지)
+                if (imageRepository.existsByImageUrlAndId(storedFileName, user.getId())) {
+                    throw new IllegalArgumentException("이미 사용 중인 이미지입니다.");
+                }
+
+                // userImage를 저장하거나 업데이트
+                imageRepository.save(userImage);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -59,18 +59,20 @@ public class UserController {
         return ResponseEntity.ok().body(new ApiResponseDto("관심사 등록 성공", HttpStatus.OK.value()));
 
     }
+
     // 사용자의 관심사 목록
     @GetMapping("/interest")
     public ResponseEntity<InterestListResponseDto> getInterest(@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        InterestListResponseDto result= interestService.getInterest(userDetails.getUser());
+        InterestListResponseDto result = interestService.getInterest(userDetails.getUser());
         return ResponseEntity.ok().body(result);
 
     }
+
     // 사용자의 관심사 목록 수정
     @PutMapping("/interest")
     public ResponseEntity<ApiResponseDto> updateInterest(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody List<String> list) {
-         interestService.updateInterest(userDetails.getUser(),list);
+        interestService.updateInterest(userDetails.getUser(), list);
         return ResponseEntity.ok().body(new ApiResponseDto("관심사 수정 성공", HttpStatus.OK.value()));
 
     }
@@ -143,7 +145,7 @@ public class UserController {
 
     //관심사 등록 할때 쓰일 카테고리 테스트 코드
     @GetMapping("/test")
-    public ResponseEntity<CategoryResponseDto> getCategory () {
+    public ResponseEntity<CategoryResponseDto> getCategory() {
         CategoryResponseDto responseDto = new CategoryResponseDto();
         return ResponseEntity.ok().body(responseDto);
     }
@@ -153,5 +155,13 @@ public class UserController {
     public ResponseEntity<UserProfileResponseDto> getUserProfile(@PathVariable Long id) {
         UserProfileResponseDto result = userService.getUserProfile(id);
         return ResponseEntity.ok().body(result);
+    }
+
+    // 비밀번호 수정
+    @PutMapping("/password")
+    public ResponseEntity<ApiResponseDto> updatePassword(@RequestBody UpdatePasswordRequestDto requestDto,
+                                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        userService.updatePassword(requestDto, userDetails.getUser());
+        return ResponseEntity.ok().body(new ApiResponseDto("비밀번호 수정 성공",HttpStatus.OK.value()));
     }
 }

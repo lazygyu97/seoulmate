@@ -1,5 +1,6 @@
 package com.sparta.seoulmate.entity;
 
+import com.sparta.seoulmate.dto.UpdatePasswordRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -79,5 +80,9 @@ public class User extends Timestamped {
         this.city = city;
         this.district = district;
         this.address = address;
+    }
+
+    public void updatePassword(UpdatePasswordRequestDto requestDto) {
+        this.password = requestDto.getUpdatePassword();
     }
 }

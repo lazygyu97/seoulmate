@@ -10,9 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdatePasswordRequestDto {
+    private String password;
     private String updatePassword;
 
-    public void updatePassword(String updatePassword) {
-        this.updatePassword = updatePassword;
+    public UpdatePasswordRequestDto updatePassword(String updatePassword) {
+        return UpdatePasswordRequestDto.builder()
+                .password(this.password)
+                .updatePassword(updatePassword)
+                .build();
     }
 }

@@ -11,34 +11,39 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Optional;
 
-@RequiredArgsConstructor
 @Component
+@RequiredArgsConstructor
 public class FileComponent {
 
     private final AmazonS3 amazonS3Client;
-
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+    public String upload(MultipartFile file) throws IOException {
+        String originalFilename = file.getOriginalFilename();
+        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
 
-    public String upload(MultipartFile multipartFile) throws IOException {  // MultipartFile을 전달받아 File로 전환한 후 S3에 업로드
-        // 매개변수로 받은 MultipartFile > File 변환
-        File fileToUpload = convert(multipartFile)
+        if (!Arrays.asList("jpg", "jpeg", "png", "gif").contains(fileExtension.toLowerCase())) {
+            throw new IllegalArgumentException("이미지 파일만 업로드 가능합니다.");
+        }
+
+        File convertedFile = convert(file)
                 .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
 
-        String fileName = "image" + "/" + fileToUpload.getName();
-        String uploadImageUrl = putS3(fileToUpload, fileName);
+        String fileName = "image" + "/" + convertedFile.getName();
+        String uploadImageUrl = putS3(convertedFile, fileName);
 
-        fileToUpload.delete();    // 로컬에 생성된 File 삭제 (MultipartFile -> File 전환 하며 로컬에 파일 생성됨)
+        convertedFile.delete();
 
-        return uploadImageUrl;      // 업로드된 파일의 S3 URL 주소 반환
+        return uploadImageUrl;
     }
 
     private String putS3(File uploadFile, String fileName) {
         amazonS3Client.putObject(
                 new PutObjectRequest(bucket, fileName, uploadFile)
-                        .withCannedAcl(CannedAccessControlList.PublicRead)    // PublicRead 권한으로 업로드
+                        .withCannedAcl(CannedAccessControlList.PublicRead)
         );
         return amazonS3Client.getUrl(bucket, fileName).toString();
     }
@@ -51,8 +56,8 @@ public class FileComponent {
         return Optional.of(convertFile);
     }
 
-    public void delete(String imageUrl) {
-        String objectKey = imageUrl.substring(imageUrl.lastIndexOf("/") + 1); // 추출된 파일명
-        amazonS3Client.deleteObject(bucket, "image/" + objectKey); // "image/"는 S3에 업로드된 경로입니다.
+    public void deleteImage(String imageUrl) {
+        String objectKey = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+        amazonS3Client.deleteObject(bucket, "image/" + objectKey);
     }
 }

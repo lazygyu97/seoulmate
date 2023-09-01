@@ -81,6 +81,29 @@ public class PostService {
     }
 
     /**
+     * 게시글을 검색하고 검색 결과를 페이지로 반환
+     *
+     * @param keyword  검색어
+     * @param criteria criteria 검색 조건 (title, content, title+content 중 하나)
+     * @param pageable pageable 페이징 정보
+     * @return 검색 결과의 페이지(PostResponseDto)
+     */
+    public Page<PostResponseDto> searchPosts(String keyword, String criteria, Pageable pageable) {
+        if ("title".equals(criteria)) {
+            return postRepository.findByTitleContaining(keyword, pageable)
+                    .map(PostResponseDto::of);
+        } else if ("content".equals(criteria)) {
+            return postRepository.findByContentContaining(keyword, pageable)
+                    .map(PostResponseDto::of);
+        } else if ("title+content".equals(criteria)) {
+            return postRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable)
+                    .map(PostResponseDto::of);
+        } else {
+            throw new IllegalArgumentException("Invalid criteria");
+        }
+    }
+
+    /**
      * 게시글 단건 조회
      *
      * @param id 조회할 게시글 ID
@@ -173,4 +196,6 @@ public class PostService {
     private Post findPost(Long id) {
         return postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("선택한 게시글은 존재하지 않습니다."));
     }
+
+
 }

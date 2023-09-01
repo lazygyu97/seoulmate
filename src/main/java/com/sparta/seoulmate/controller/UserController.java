@@ -1,6 +1,9 @@
 package com.sparta.seoulmate.controller;
 
 import com.sparta.seoulmate.dto.*;
+import com.sparta.seoulmate.dto.interest.CategoryResponseDto;
+import com.sparta.seoulmate.dto.interest.InterestListResponseDto;
+import com.sparta.seoulmate.dto.user.*;
 import com.sparta.seoulmate.security.UserDetailsImpl;
 import com.sparta.seoulmate.service.EmailService;
 import com.sparta.seoulmate.service.InterestService;
@@ -16,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,6 +35,7 @@ public class UserController {
     private final InterestService interestService;
 
     // 회원가입
+
     @PostMapping("/signup")
     public ResponseEntity<ApiResponseDto> signUp(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
 
@@ -87,7 +92,7 @@ public class UserController {
     @GetMapping("/signup/mail")
     public ResponseEntity mailVerification(@RequestParam String email, @RequestParam String code) {
         emailService.mailVerification(email, code);
-        return ResponseEntity.ok().body("이메일이 인증되었습니다.");
+        return ResponseEntity.ok().body("이메일 인증 완료");
     }
 
     // 인증 문자 전송
@@ -100,7 +105,7 @@ public class UserController {
     @GetMapping("/signup/sms")
     public ResponseEntity smsVerification(@RequestParam String phone, @RequestParam String code) {
         smsService.smsVerification(phone, code);
-        return ResponseEntity.ok().body("전화번호 인증이 완료되었습니다.");
+        return ResponseEntity.ok().body("전화번호 인증 성공");
     }
 
     //Blacklist를 활용한 로그아웃
@@ -124,7 +129,7 @@ public class UserController {
         }
 
         userService.updateNickname(requestDto, userDetails.getUser());
-        return ResponseEntity.ok().body(new ApiResponseDto("닉네임 변경이 완료되었습니다.", HttpStatus.OK.value()));
+        return ResponseEntity.ok().body(new ApiResponseDto("닉네임 변경 완료", HttpStatus.OK.value()));
     }
 
     // 프로필 수정(주소)
@@ -140,7 +145,23 @@ public class UserController {
         }
 
         userService.updateAddress(requestDto, userDetails.getUser());
-        return ResponseEntity.ok().body(new ApiResponseDto("주소 변경이 완료되었습니다.", HttpStatus.OK.value()));
+        return ResponseEntity.ok().body(new ApiResponseDto("주소 변경 완료", HttpStatus.OK.value()));
+    }
+
+    // 프로필 수정(이미지)
+    @PutMapping("/image")
+    public ResponseEntity<ApiResponseDto> updateImage(
+            @RequestPart(value = "file") MultipartFile file,
+            @AuthenticationPrincipal UserDetailsImpl userDetails){
+
+        if (userDetails == null || userDetails.getUser() == null) {
+            // 사용자가 로그인하지 않은 경우 또는 인증 정보가 올바르게 전달되지 않은 경우 처리
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponseDto("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED.value()));
+        }
+
+        userService.updateImage(file, userDetails.getUser());
+        return ResponseEntity.ok().body(new ApiResponseDto("이미지 변경 완료", HttpStatus.OK.value()));
     }
 
     //관심사 등록 할때 쓰일 카테고리 테스트 코드
@@ -160,7 +181,7 @@ public class UserController {
     // 비밀번호 수정
     @PutMapping("/password")
     public ResponseEntity<ApiResponseDto> updatePassword(@RequestBody UpdatePasswordRequestDto requestDto,
-                                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
         userService.updatePassword(requestDto, userDetails.getUser());
         return ResponseEntity.ok().body(new ApiResponseDto("비밀번호 수정 성공",HttpStatus.OK.value()));
     }

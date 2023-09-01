@@ -1,5 +1,6 @@
-package com.sparta.seoulmate.dto;
+package com.sparta.seoulmate.dto.post;
 
+import com.sparta.seoulmate.dto.ApiResponseDto;
 import com.sparta.seoulmate.entity.Post;
 import lombok.*;
 
@@ -15,7 +16,6 @@ public class PostResponseDto extends ApiResponseDto {
     private Long id;
     private String title;
     private String content;
-    private String image;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -24,7 +24,6 @@ public class PostResponseDto extends ApiResponseDto {
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .image(post.getImage())
                 .createdAt(post.getCreatedAt())
                 .modifiedAt(post.getModifiedAt())
                 .build();

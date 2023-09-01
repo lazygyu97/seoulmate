@@ -32,9 +32,6 @@ public class Post extends Timestamped {
     @Column(nullable = false)
     private String content;
 
-    @Column
-    private String image;
-
     @Builder.Default
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
@@ -42,6 +39,10 @@ public class Post extends Timestamped {
     @Builder.Default
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<PostLike> postLikes = new ArrayList<>();
+
+    @Column
+    @OneToMany(mappedBy = "post", orphanRemoval = true)
+    private List<Image> images = new ArrayList<>();
 
 
     public void updateTitle(String title) {

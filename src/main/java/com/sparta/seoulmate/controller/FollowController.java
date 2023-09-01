@@ -1,8 +1,8 @@
 package com.sparta.seoulmate.controller;
 
 import com.sparta.seoulmate.dto.ApiResponseDto;
-import com.sparta.seoulmate.dto.FollowResponseDto;
-import com.sparta.seoulmate.dto.PostResponseDto;
+import com.sparta.seoulmate.dto.user.FollowResponseDto;
+import com.sparta.seoulmate.dto.post.PostResponseDto;
 import com.sparta.seoulmate.security.UserDetailsImpl;
 import com.sparta.seoulmate.service.FollowService;
 import lombok.RequiredArgsConstructor;

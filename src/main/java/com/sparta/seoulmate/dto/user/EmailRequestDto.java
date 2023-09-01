@@ -1,4 +1,4 @@
-package com.sparta.seoulmate.dto;
+package com.sparta.seoulmate.dto.user;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

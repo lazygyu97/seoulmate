@@ -10,8 +10,10 @@ import com.sparta.seoulmate.repository.RefreshTokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.UUID;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,7 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Slf4j(topic = "로그인 및 JWT 생성")
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-//인증
+    //인증
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -32,19 +34,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     public Authentication attemptAuthentication(
-        HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+            HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         log.info("로그인 시도");
 
         try {
             LoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(),
-                LoginRequestDto.class);
+                    LoginRequestDto.class);
 
             return getAuthenticationManager().authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    requestDto.getUsername(),
-                    requestDto.getPassword(),
-                    null
-                )
+                    new UsernamePasswordAuthenticationToken(
+                            requestDto.getUsername(),
+                            requestDto.getPassword(),
+                            null
+                    )
             );
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -54,8 +56,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request,
-        HttpServletResponse response, FilterChain chain, Authentication authResult)
-        throws IOException {
+                                            HttpServletResponse response, FilterChain chain, Authentication authResult)
+            throws IOException {
         log.info("로그인 성공 및 JWT 생성");
         User user = ((UserDetailsImpl) authResult.getPrincipal()).getUser();
         String username = user.getUsername();
@@ -67,14 +69,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String token = jwtUtil.createToken(username, role);
 
+        response.setCharacterEncoding("UTF-8");
+
         response.addHeader("RefreshToken", refreshTokenVal);
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        String message = "RefreshToken:" + refreshTokenVal + "\n" +
+                "Authorization:" + token;
+        response.getWriter().write(message);
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request,
-        HttpServletResponse response, AuthenticationException failed)
-        throws IOException {
+                                              HttpServletResponse response, AuthenticationException failed)
+            throws IOException {
         log.info("로그인 실패");
 
         // 응답에 성공 메시지를 추가하여 클라이언트에 전달

@@ -40,4 +40,5 @@ public class Follow {
     @Column
     private LocalDateTime followingDateTime;
 
+
 }

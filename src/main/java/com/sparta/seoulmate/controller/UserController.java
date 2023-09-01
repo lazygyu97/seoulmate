@@ -31,6 +31,7 @@ public class UserController {
     private final InterestService interestService;
 
     // 회원가입
+
     @PostMapping("/signup")
     public ResponseEntity<ApiResponseDto> signUp(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
 

@@ -10,22 +10,24 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Getter
-public class PasswordManager extends Timestamped {
+@Table(name = "images")
+public class Image extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
+    private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(nullable = false)
-    private String password; // 변경된 비밀번호
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
 
-
-    public PasswordManager (String password, User user) {
-        this.password = password;
-        this.user = user;
+    public void update(String storedFileName) {
+        this.imageUrl = storedFileName;
     }
 }

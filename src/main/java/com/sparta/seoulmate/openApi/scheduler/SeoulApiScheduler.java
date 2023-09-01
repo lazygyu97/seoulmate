@@ -40,39 +40,7 @@ public class SeoulApiScheduler {
 
     //  공공 서비스에서 제공하는 데이터베이스를 새벽 6시와 저녁 11 마다 업데이트 하는 메서드
     @Scheduled(cron = "0 0 6,23 * * *") // 새벽 6시와 저녁 11
-    public void updateDatabase() throws InterruptedException {
-        seoulApiRepository.truncateTable();
-        HashMap<String, Integer> updateMap = openApiService.getCountAllService();
-        for (Map.Entry<String, Integer> entry : updateMap.entrySet()) {
-
-            String key = entry.getKey();
-            Integer value = entry.getValue();
-
-            log.info(key + "update processing...");
-
-            TimeUnit.SECONDS.sleep(1);
-            URI uri = UriComponentsBuilder
-                    .fromUriString("http://openapi.seoul.go.kr:8088/" + API_KEY + key)
-                    .path("/1/" + value.toString())
-                    .encode(StandardCharsets.UTF_8)
-                    .build()
-                    .toUri();
-
-            log.info("uri = " + uri);
-
-            RequestEntity<Void> requestEntity = RequestEntity
-                    .get(uri)
-                    .build();
-            ResponseEntity<String> responseEntity = restTemplate.exchange(requestEntity, String.class);
-            log.info("OPEN API Status Code : " + responseEntity.getStatusCode());
-
-            JSONObject jsonObject = new JSONObject(responseEntity.getBody()).getJSONObject(key);
-            JSONArray itemsArray = jsonObject.getJSONArray("row");
-
-            for (Object item : itemsArray) {
-                seoulApiRepository.save(new UpdateItemDto().toEntity((JSONObject) item));
-            }
-
-        }
+    public void updateDatabase() {
+        openApiService.getCountAllService();
     }
 }

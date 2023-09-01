@@ -62,6 +62,9 @@ public class User extends Timestamped {
     @Enumerated(value = EnumType.STRING)
     private UserGenderEnum gender;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private final List<PasswordManager> passwordManagerList = new ArrayList<>();
+
     @Builder.Default
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserInterest> userInterests = new ArrayList<>();
@@ -82,7 +85,7 @@ public class User extends Timestamped {
         this.address = address;
     }
 
-    public void updatePassword(UpdatePasswordRequestDto requestDto) {
-        this.password = requestDto.getUpdatePassword();
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
     }
 }

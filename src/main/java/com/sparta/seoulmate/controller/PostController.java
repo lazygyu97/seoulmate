@@ -6,6 +6,7 @@ import com.sparta.seoulmate.dto.PostResponseDto;
 import com.sparta.seoulmate.security.UserDetailsImpl;
 import com.sparta.seoulmate.service.PostService;
 import com.sun.jdi.request.DuplicateRequestException;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
@@ -15,7 +16,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
 @RestController
@@ -27,11 +30,15 @@ public class PostController {
 
     // 게시글 생성
     @PostMapping("/posts")
-    public ResponseEntity<ApiResponseDto> createPost(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                     @RequestBody PostRequestDto requestDto) {
+    public ResponseEntity<ApiResponseDto> createPost(@RequestPart(value = "title") String title,
+                                                     @RequestPart(value = "content") String content,
+                                                     @Nullable @RequestPart(value = "file") List<MultipartFile> files,
+                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        postService.createPost(requestDto, userDetails.getUser());
+        PostRequestDto requestDto = PostRequestDto.builder()
+                .title(title).content(content).build();
 
+        postService.createPost(requestDto, files, userDetails.getUser());
         return ResponseEntity.ok().body(new ApiResponseDto("게시글 생성 성공!", HttpStatus.OK.value()));
     }
 

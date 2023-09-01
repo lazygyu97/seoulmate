@@ -1,11 +1,10 @@
 package com.sparta.seoulmate.service;
 
+import com.sparta.seoulmate.config.FileComponent;
 import com.sparta.seoulmate.dto.PostRequestDto;
 import com.sparta.seoulmate.dto.PostResponseDto;
-import com.sparta.seoulmate.entity.Post;
-import com.sparta.seoulmate.entity.PostLike;
-import com.sparta.seoulmate.entity.User;
-import com.sparta.seoulmate.entity.UserRoleEnum;
+import com.sparta.seoulmate.entity.*;
+import com.sparta.seoulmate.repository.ImageRepository;
 import com.sparta.seoulmate.repository.PostLikeRepository;
 import com.sparta.seoulmate.repository.PostRepository;
 import com.sun.jdi.request.DuplicateRequestException;
@@ -16,7 +15,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -25,18 +27,37 @@ import java.util.concurrent.RejectedExecutionException;
 public class PostService {
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
+    private final FileComponent fileComponent;
+    private final ImageRepository imageRepository;
 
     /**
      * 게시글 생성
      *
      * @param requestDto 게시글 생성 요청정보
+     * @param files
      * @param author     게시글 생성 요청자
      * @return 게시글 생성 결과
      */
-    public PostResponseDto createPost(PostRequestDto requestDto, User author) {
+    public PostResponseDto createPost(PostRequestDto requestDto, List<MultipartFile> files, User author) {
         Post post = requestDto.toEntity(author);
-
         postRepository.save(post);
+
+        // file 비어있지 않으면 imageUrl set
+        try {
+            if (files != null) {
+                for (MultipartFile file : files) {
+                    String storedFileName = fileComponent.upload(file);
+                    // 같은 게시글에 같은 파일이 올라가는 것을 방지
+                    if (imageRepository.existsByImageUrlAndId(storedFileName, post.getId())) {
+                        throw new IllegalArgumentException("한 게시글에는 중복된 이미지를 올릴 수 없습니다.");
+                    }
+                    imageRepository.save(Image.builder().post(post).imageUrl(storedFileName).build());
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         return PostResponseDto.of(post);
     }
 
@@ -173,9 +194,7 @@ public class PostService {
      * @return 게시글 Entity
      */
     private Post findPost(Long id) {
-        return postRepository.findById(id).orElseThrow(() ->
-                new IllegalArgumentException("선택한 게시글은 존재하지 않습니다.")
-        );
+        return postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("선택한 게시글은 존재하지 않습니다."));
     }
 
 

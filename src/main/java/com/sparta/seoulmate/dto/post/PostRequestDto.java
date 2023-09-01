@@ -1,4 +1,4 @@
-package com.sparta.seoulmate.dto;
+package com.sparta.seoulmate.dto.post;
 
 import com.sparta.seoulmate.entity.Post;
 import com.sparta.seoulmate.entity.User;

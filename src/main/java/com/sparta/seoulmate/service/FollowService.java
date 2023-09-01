@@ -1,7 +1,7 @@
 package com.sparta.seoulmate.service;
 
-import com.sparta.seoulmate.dto.FollowResponseDto;
-import com.sparta.seoulmate.dto.PostResponseDto;
+import com.sparta.seoulmate.dto.user.FollowResponseDto;
+import com.sparta.seoulmate.dto.post.PostResponseDto;
 import com.sparta.seoulmate.entity.Follow;
 import com.sparta.seoulmate.entity.Post;
 import com.sparta.seoulmate.entity.User;

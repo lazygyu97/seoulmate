@@ -1,7 +1,7 @@
 package com.sparta.seoulmate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.seoulmate.dto.LoginRequestDto;
+import com.sparta.seoulmate.dto.user.LoginRequestDto;
 import com.sparta.seoulmate.dto.test.SignupRequestTestDto;
 import com.sparta.seoulmate.entity.UserGenderEnum;
 import com.sparta.seoulmate.entity.redishash.EmailVerification;

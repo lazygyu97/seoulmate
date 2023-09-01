@@ -1,5 +1,6 @@
-package com.sparta.seoulmate.dto;
+package com.sparta.seoulmate.dto.post;
 
+import com.sparta.seoulmate.dto.ApiResponseDto;
 import com.sparta.seoulmate.entity.Post;
 import lombok.*;
 

@@ -1,8 +1,8 @@
 package com.sparta.seoulmate.controller;
 
 import com.sparta.seoulmate.dto.ApiResponseDto;
-import com.sparta.seoulmate.dto.PostRequestDto;
-import com.sparta.seoulmate.dto.PostResponseDto;
+import com.sparta.seoulmate.dto.post.PostRequestDto;
+import com.sparta.seoulmate.dto.post.PostResponseDto;
 import com.sparta.seoulmate.security.UserDetailsImpl;
 import com.sparta.seoulmate.service.PostService;
 import com.sun.jdi.request.DuplicateRequestException;
@@ -39,7 +39,7 @@ public class PostController {
                 .title(title).content(content).build();
 
         postService.createPost(requestDto, files, userDetails.getUser());
-        return ResponseEntity.ok().body(new ApiResponseDto("게시글 생성 성공!", HttpStatus.OK.value()));
+        return ResponseEntity.ok().body(new ApiResponseDto("게시글 생성 성공", HttpStatus.OK.value()));
     }
 
     // 게시글 전체 조회
@@ -99,7 +99,7 @@ public class PostController {
                                                      @PathVariable Long id) {
         try {
             postService.deletePost(id, userDetails.getUser());
-            return ResponseEntity.ok().body(new ApiResponseDto("게시글 삭제 성공,", HttpStatus.OK.value()));
+            return ResponseEntity.ok().body(new ApiResponseDto("게시글 삭제 성공", HttpStatus.OK.value()));
         } catch (RejectedExecutionException e) {
             return ResponseEntity.badRequest().body(new ApiResponseDto("작성자만 삭제 할 수 있습니다.", HttpStatus.BAD_REQUEST.value()));
         }

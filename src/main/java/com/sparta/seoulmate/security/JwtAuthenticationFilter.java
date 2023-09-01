@@ -1,7 +1,7 @@
 package com.sparta.seoulmate.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.seoulmate.dto.LoginRequestDto;
+import com.sparta.seoulmate.dto.user.LoginRequestDto;
 import com.sparta.seoulmate.entity.User;
 import com.sparta.seoulmate.entity.UserRoleEnum;
 import com.sparta.seoulmate.entity.redishash.RefreshToken;

@@ -1,8 +1,6 @@
-package com.sparta.seoulmate.dto;
+package com.sparta.seoulmate.dto.interest;
 
-import com.sparta.seoulmate.entity.User;
 import com.sparta.seoulmate.entity.UserInterest;
-import com.sparta.seoulmate.entity.UserInterestEnum;
 import lombok.*;
 
 @Builder

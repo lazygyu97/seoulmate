@@ -1,8 +1,8 @@
 package com.sparta.seoulmate.service;
 
 import com.sparta.seoulmate.config.FileComponent;
-import com.sparta.seoulmate.dto.PostRequestDto;
-import com.sparta.seoulmate.dto.PostResponseDto;
+import com.sparta.seoulmate.dto.post.PostRequestDto;
+import com.sparta.seoulmate.dto.post.PostResponseDto;
 import com.sparta.seoulmate.entity.*;
 import com.sparta.seoulmate.repository.ImageRepository;
 import com.sparta.seoulmate.repository.PostLikeRepository;

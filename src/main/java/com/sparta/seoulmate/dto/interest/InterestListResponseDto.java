@@ -1,7 +1,5 @@
-package com.sparta.seoulmate.dto;
+package com.sparta.seoulmate.dto.interest;
 
-import com.sparta.seoulmate.entity.Post;
-import com.sparta.seoulmate.entity.User;
 import com.sparta.seoulmate.entity.UserInterest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

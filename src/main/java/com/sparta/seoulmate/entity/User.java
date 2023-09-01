@@ -1,6 +1,5 @@
 package com.sparta.seoulmate.entity;
 
-import com.sparta.seoulmate.dto.UpdatePasswordRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

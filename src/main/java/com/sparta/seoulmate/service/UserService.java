@@ -1,7 +1,7 @@
 package com.sparta.seoulmate.service;
 
 import com.sparta.seoulmate.config.FileComponent;
-import com.sparta.seoulmate.dto.*;
+import com.sparta.seoulmate.dto.user.*;
 import com.sparta.seoulmate.entity.Image;
 import com.sparta.seoulmate.entity.PasswordManager;
 import com.sparta.seoulmate.entity.User;

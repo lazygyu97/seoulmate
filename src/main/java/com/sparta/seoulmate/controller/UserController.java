@@ -161,7 +161,7 @@ public class UserController {
     // 비밀번호 수정
     @PutMapping("/password")
     public ResponseEntity<ApiResponseDto> updatePassword(@RequestBody UpdatePasswordRequestDto requestDto,
-                                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
         userService.updatePassword(requestDto, userDetails.getUser());
         return ResponseEntity.ok().body(new ApiResponseDto("비밀번호 수정 성공",HttpStatus.OK.value()));
     }

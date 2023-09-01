@@ -78,8 +78,12 @@ public class UserService {
         User user = requestDto.toEntity(role, password);
         userRepository.save(user);
 
-        // 회원가입 했을 때 썼던 비밀번호 저장
-        passwordManagerRepository.save(new PasswordManager(user, password));
+        // 회원가입 시 썼던 비밀번호를 PasswordManager 엔티티에 저장
+        PasswordManager passwordManager = PasswordManager.builder()
+                .user(user)
+                .password(password)    // 업데이트된 비밀번호
+                .build();
+        passwordManagerRepository.save(passwordManager);
     }
 
     public void logout(User user, HttpServletRequest request) {
@@ -149,24 +153,40 @@ public class UserService {
 
     @Transactional
     public void updatePassword (UpdatePasswordRequestDto requestDto, User user) {
+        User loginedUser = findUser(user.getUsername());
+        //입력한 비밀번호와 DB 내 비밀번호가 동일할 시
+        if (passwordEncoder.matches(requestDto.getPassword(), loginedUser.getPassword())) {
 
-        // 최근 3번 사용한 비밀번호 조회
-        List<PasswordManager> passwordList = passwordManagerRepository.findTop4ByUserOrderByCreatedAtDesc(user);
+            //가장 최근 사용한 3개의 비밀번호를 가져오기
+            List<String> usedPasswords = passwordManagerRepository.findPasswordTopThree(loginedUser);
+            System.out.println("로그:"+usedPasswords);
+            for(String usedPassword : usedPasswords){
 
-        for (PasswordManager passwordHistory : passwordList) {
-            if (passwordEncoder.matches(requestDto.getUpdatePassword(), passwordHistory.getUpdatePassword())) {
-                throw new IllegalArgumentException("최근 3번 사용한 비밀번호는 사용할 수 없습니다.");
+                //바꾸려는 비밀번호가 패스워드관리테이블 내 최근 3개의 비밀번호 중 하나와 일치하는 경우
+                if(passwordEncoder.matches(requestDto.getUpdatePassword(),usedPassword)){
+                    System.out.println("최근 3회 이내 사용된 비밀번호와 같아서 비밀번호를 변경 할 수 없습니다.");
+                    throw new IllegalArgumentException("최근 3회 이내 사용된 비밀번호로는 변경 할 수 없습니다.");
+                }
+                System.out.println("최근 3회 이내 사용된 비밀번호와 달라서 비밀번호를 변경 했습니다.");
             }
+
+            //비밀번호 변경
+            String newPassword = passwordEncoder.encode(requestDto.getUpdatePassword());
+            loginedUser.updatePassword(newPassword);
+
+            //비밀번호 관리테이블에 추가
+            PasswordManager passwordManager = new PasswordManager(newPassword, user);
+            passwordManagerRepository.save(passwordManager);
         }
+        else
+            throw new IllegalArgumentException("입력한 현재 비밀번호가 일치하지 않습니다.");
 
-        requestDto.updatePassword(passwordEncoder.encode(requestDto.getUpdatePassword()));
-        // 받아온 비밀번호 암호화 시켜줌
+    }
 
-        User targetUser = userRepository.findById(user.getId())
-                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다"));
-
-        targetUser.updatePassword(requestDto); // 패스워드 업데이트 메소드 호출
-
-        passwordManagerRepository.save(new PasswordManager(user, requestDto.getUpdatePassword()));
+    //user가 db내 존재하는지 검사
+    private User findUser(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() ->
+                new IllegalArgumentException("존재하지 않는 사용자 입니다.")
+        );
     }
 }

@@ -21,10 +21,11 @@ public class PasswordManager extends Timestamped {
     private User user;
 
     @Column(nullable = false)
-    private String updatePassword; // 변경된 비밀번호
+    private String password; // 변경된 비밀번호
 
-    public PasswordManager (User user, String updatePassword) {
+
+    public PasswordManager (String password, User user) {
+        this.password = password;
         this.user = user;
-        this.updatePassword = updatePassword;
     }
 }

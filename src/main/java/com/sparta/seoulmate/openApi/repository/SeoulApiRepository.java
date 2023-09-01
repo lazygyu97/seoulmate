@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface SeoulApiRepository extends JpaRepository<SeoulApi,Long> {
 
@@ -17,4 +18,6 @@ public interface SeoulApiRepository extends JpaRepository<SeoulApi,Long> {
     void truncateTable();
 
     List<SeoulApi> findByMAXCLASSNMAndSVCSTATNM(String maxClassNm, String svcStatNm);
+
+    Optional<SeoulApi> findBySVCID(String svcid);
 }

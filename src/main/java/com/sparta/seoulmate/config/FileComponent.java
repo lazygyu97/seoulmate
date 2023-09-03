@@ -19,6 +19,7 @@ import java.util.Optional;
 public class FileComponent {
 
     private final AmazonS3 amazonS3Client;
+
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
     public String upload(MultipartFile file) throws IOException {

@@ -40,7 +40,7 @@ public class Post extends Timestamped {
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<PostLike> postLikes = new ArrayList<>();
 
-    @Column
+    @Builder.Default
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
 

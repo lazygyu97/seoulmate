@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Getter
 @Table(name = "images")
 public class Image extends Timestamped {
     @Id

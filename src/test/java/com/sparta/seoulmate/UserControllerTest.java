@@ -1,6 +1,8 @@
 package com.sparta.seoulmate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.seoulmate.config.FileComponent;
+import com.sparta.seoulmate.config.S3Config;
 import com.sparta.seoulmate.dto.user.LoginRequestDto;
 import com.sparta.seoulmate.dto.test.SignupRequestTestDto;
 import com.sparta.seoulmate.entity.UserGenderEnum;
@@ -43,12 +45,12 @@ public class UserControllerTest {
     @Autowired
     JwtUtil jwtUtil;
 
-    String TEST_USER = "TEST_USER";
-    String TEST_PASSWORD = "TEST_PASSWORD";
-    String TEST_NICKNAME = "TEST_NICKNAME";
-    String TEST_PHONE = "01012345678";
-    String TEST_EMAIL = "test2@example.com";
-    String TEST_CODE = "test2@example.com";
+    String TEST_USER = "TEST_USER1";
+    String TEST_PASSWORD = "TEST_PASSWORD1";
+    String TEST_NICKNAME = "TEST_NICKNAME1";
+    String TEST_PHONE = "01012345677";
+    String TEST_EMAIL = "test3@example.com";
+    String TEST_CODE = "test3@example.com";
 
 
     @Test

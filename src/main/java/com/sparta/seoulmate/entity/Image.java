@@ -21,7 +21,7 @@ public class Image extends Timestamped {
     private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "u거ser_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)

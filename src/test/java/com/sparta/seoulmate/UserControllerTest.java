@@ -1,10 +1,8 @@
 package com.sparta.seoulmate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.seoulmate.config.FileComponent;
-import com.sparta.seoulmate.config.S3Config;
-import com.sparta.seoulmate.dto.user.LoginRequestDto;
 import com.sparta.seoulmate.dto.test.SignupRequestTestDto;
+import com.sparta.seoulmate.dto.user.LoginRequestDto;
 import com.sparta.seoulmate.entity.UserGenderEnum;
 import com.sparta.seoulmate.entity.redishash.EmailVerification;
 import com.sparta.seoulmate.entity.redishash.SmsVerification;
@@ -56,7 +54,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("이메일 인증코드 전송 및 확인 테스트")
     @Order(1)
-    public void emailVerification() throws Exception {
+    public void emailVerification() {
         // 이메일은 인증 되었다고 가정
         EmailVerification emailVerification = new EmailVerification(TEST_EMAIL, TEST_CODE);
         emailVerification.setVerificated();
@@ -66,7 +64,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("이메일 인증 확인 테스트")
     @Order(2)
-    public void smsVerification() throws Exception {
+    public void smsVerification() {
         // 휴대폰 인증 되었다고 가정
         SmsVerification smsVerification = new SmsVerification(TEST_PHONE, TEST_CODE);
         smsVerification.setVerificated();

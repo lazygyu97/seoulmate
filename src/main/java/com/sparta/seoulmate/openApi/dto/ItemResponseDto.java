@@ -34,6 +34,7 @@ public class ItemResponseDto {
     private String V_MAX;//서비스이용 종료시간
     private String REVSTDDAYNM;//취소기간 기준정보
     private String REVSTDDAY;//취소기간 기준일까지
+    private int seoulApiLikes;//취소기간 기준일까지
 
 
     public static ItemResponseDto of(SeoulApi seoulApi) {
@@ -62,6 +63,7 @@ public class ItemResponseDto {
                 .V_MAX(seoulApi.getV_MAX())
                 .REVSTDDAYNM(seoulApi.getREVSTDDAYNM())
                 .REVSTDDAY(seoulApi.getREVSTDDAY())
+                .seoulApiLikes(seoulApi.getSeoulApiLikes().size())
                 .build();
         return itemResponseDto;
     }

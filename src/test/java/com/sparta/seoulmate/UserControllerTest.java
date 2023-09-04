@@ -43,12 +43,12 @@ public class UserControllerTest {
     @Autowired
     JwtUtil jwtUtil;
 
-    String TEST_USER = "TEST_USER1";
-    String TEST_PASSWORD = "TEST_PASSWORD1";
-    String TEST_NICKNAME = "TEST_NICKNAME1";
+    String TEST_USER = "TEST_USER12";
+    String TEST_PASSWORD = "TEST_PASSWORD12";
+    String TEST_NICKNAME = "TEST_NICKNAME12";
     String TEST_PHONE = "01012345677";
-    String TEST_EMAIL = "test3@example.com";
-    String TEST_CODE = "test3@example.com";
+    String TEST_EMAIL = "test23@example.com";
+    String TEST_CODE = "test23@example.com";
 
 
     @Test

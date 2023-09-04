@@ -42,6 +42,8 @@ public class UserControllerTest {
     EmailService emailService;
     @Autowired
     JwtUtil jwtUtil;
+    @Autowired
+    EmbeddedRedisConfig embeddedRedisConfig;
 
     String TEST_USER = "TEST_USER12";
     String TEST_PASSWORD = "TEST_PASSWORD12";

@@ -34,7 +34,7 @@ public class FollowService {
             FollowResponseDto followResponseDto = FollowResponseDto.builder()
                     .id(follow.getFollowingUser().getId())
                     .nickname(follow.getFollowingUser().getNickname())
-                    .image(follow.getFollowingUser().getImage())
+                    .image(follow.getFollowingUser().getImage().getImageUrl())
                     .build();
             followingResponseList.add(followResponseDto);
         }
@@ -49,7 +49,7 @@ public class FollowService {
             FollowResponseDto followResponseDto = FollowResponseDto.builder()
                     .id(follow.getUser().getId())
                     .nickname(follow.getUser().getNickname())
-                    .image(follow.getUser().getImage())
+                    .image(follow.getUser().getImage().getImageUrl())
                     .build();
             followerResponseList.add(followResponseDto);
         }

@@ -1,15 +1,15 @@
 package com.sparta.seoulmate.openApi.controller;
 
 import com.sparta.seoulmate.dto.ApiResponseDto;
-import com.sparta.seoulmate.openApi.dto.ItemListResponseDto;
+import com.sparta.seoulmate.openApi.dto.ItemResponseDto;
 import com.sparta.seoulmate.openApi.service.OpenApiService;
+import com.sparta.seoulmate.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,32 +18,34 @@ public class OpenApiController {
 
     private final OpenApiService openApiService;
 
-    // 접수중인 문화체험 서비스 전체 가져오기
-    @GetMapping("/culture")
-    public ItemListResponseDto getAllCultureService() {
-        return openApiService.getAllCultureService();
+    // 접수중 서비스 전체 가져오기
+    @GetMapping("/services")
+    public ResponseEntity<Page<ItemResponseDto>> getAllService(@RequestParam("category") String category, @RequestParam("page") int page, @RequestParam("size") int size
+    ) {
+        Page<ItemResponseDto> result = openApiService.getAllService(category, page - 1, size);
+
+        return ResponseEntity.ok().body(result);
     }
-    // 접수중인 교육강좌 서비스 전체 가져오기
-    @GetMapping("/education")
-    public ItemListResponseDto getAllEducationService() {
-        return openApiService.getAllEducationService();
+
+    //서비스 데이터 단건 조회
+    @GetMapping("/service")
+    public ResponseEntity<ItemResponseDto> getService(@RequestParam("svcid") String svcid) {
+        ItemResponseDto result = openApiService.getService(svcid);
+        return ResponseEntity.ok().body(result);
     }
-    // 접수중인 진료복지 서비스 전체 가져오기
-    @GetMapping("/medical")
-    public ItemListResponseDto getAllMedicalService() {
-        return openApiService.getAllMedicalService();
+
+    //서비스 데이터 단건 조회
+    @PostMapping("/service/like")
+    public ResponseEntity<ApiResponseDto> likeService(@RequestParam("svcid") String svcid, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        openApiService.likeService(svcid,userDetails.getUser());
+        return ResponseEntity.status(201).body(new ApiResponseDto("서비스 좋아요 성공", HttpStatus.CREATED.value()));
     }
-    // 접수중인 채육시설 서비스 전체 가져오기
-    @GetMapping("/sport")
-    public ItemListResponseDto getAllSportService() {
-        System.out.println("체육");
-        return openApiService.getAllSportService();
+    @DeleteMapping("/service/like")
+    public ResponseEntity<ApiResponseDto> deleteLikeService(@RequestParam("svcid") String svcid, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        openApiService.deleteLikeService(svcid,userDetails.getUser());
+        return ResponseEntity.status(201).body(new ApiResponseDto("서비스 좋아요 해제 성공", HttpStatus.CREATED.value()));
     }
-    // 접수중인 공간시설 서비스 전체 가져오기
-    @GetMapping("/space")
-    public ItemListResponseDto getAllSpaceService() {
-        return openApiService.getAllSpaceService();
-    }
+
     @PutMapping("/update")
     public ResponseEntity<ApiResponseDto> updateDatabase() {
         openApiService.getCountAllService();

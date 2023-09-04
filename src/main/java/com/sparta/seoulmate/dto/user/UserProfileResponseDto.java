@@ -1,10 +1,16 @@
 package com.sparta.seoulmate.dto.user;
 
+import com.sparta.seoulmate.entity.Image;
+import com.sparta.seoulmate.entity.SeoulApi;
+import com.sparta.seoulmate.entity.SeoulApiLike;
 import com.sparta.seoulmate.entity.User;
+import com.sparta.seoulmate.openApi.dto.ItemResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @Builder
@@ -21,6 +27,7 @@ public class UserProfileResponseDto {
     private String district;
     private String address;
     private String image;
+    private List<ItemResponseDto> seoulApiLikes;
 
 
     public static UserProfileResponseDto of(User user) {
@@ -34,7 +41,8 @@ public class UserProfileResponseDto {
                 .city(user.getCity())
                 .district(user.getDistrict())
                 .address(user.getAddress())
-                .image(user.getImage())
+                .image(user.getImage().getImageUrl())
+                .seoulApiLikes(user.getSeoulApiLikes().stream().map(seoulApiLike -> ItemResponseDto.of(seoulApiLike.getSeoulApi())).toList())
                 .build();
     }
 }

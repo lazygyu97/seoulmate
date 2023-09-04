@@ -11,24 +11,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Getter
-@Table(name = "images")
-public class Image extends Timestamped {
+@Table(name = "seoul_api_likes")
+public class SeoulApiLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String imageUrl;
-
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
-    private Post post;
-
-    public void update(String storedFileName) {
-        this.imageUrl = storedFileName;
-    }
+    @JoinColumn(name = "svcid")
+    private SeoulApi seoulApi;
 }

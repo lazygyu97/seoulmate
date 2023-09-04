@@ -77,7 +77,7 @@ public class OAuthAttributes {
                 .username(name)
                 .email(email)
                 .password(UUID.randomUUID().toString())
-                .image(picture)
+//                .image(picture)
                 .nickname(name)
                 .role(UserRoleEnum.USER)
                 .build();

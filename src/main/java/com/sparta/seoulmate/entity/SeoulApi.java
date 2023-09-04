@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -114,6 +117,11 @@ public class SeoulApi {
     // 취소기간 기준일까지를 나타내는 필드
     @Column
     private String REVSTDDAY;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "seoulApi", orphanRemoval = true)
+    private List<SeoulApiLike> seoulApiLikes = new ArrayList<>();
+
 
     public void update(JSONObject itemJson) {
             SeoulApi.builder()

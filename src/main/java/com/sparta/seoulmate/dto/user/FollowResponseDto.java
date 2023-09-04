@@ -15,7 +15,7 @@ public class FollowResponseDto {
         return FollowResponseDto.builder()
                 .id(user.getId())
                 .nickname(user.getNickname())
-                .image(user.getImage())
+                .image(user.getImage().getImageUrl())
                 .build();
     }
 }

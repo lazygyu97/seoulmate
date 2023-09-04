@@ -1,13 +1,20 @@
 package com.sparta.seoulmate.openApi.service;
 
 import com.sparta.seoulmate.entity.SeoulApi;
-import com.sparta.seoulmate.openApi.dto.ItemListResponseDto;
+import com.sparta.seoulmate.entity.SeoulApiLike;
+import com.sparta.seoulmate.entity.User;
+import com.sparta.seoulmate.openApi.dto.ItemResponseDto;
 import com.sparta.seoulmate.openApi.dto.UpdateItemDto;
+import com.sparta.seoulmate.openApi.repository.SeoulApiLikeRepository;
 import com.sparta.seoulmate.openApi.repository.SeoulApiRepository;
+import com.sun.jdi.request.DuplicateRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,6 +32,7 @@ import java.util.*;
 public class OpenApiService {
 
     private final SeoulApiRepository seoulApiRepository;
+    private final SeoulApiLikeRepository seoulApiLikeRepository;
     private final RestTemplate restTemplate;
     private final String API_KEY = "5a65746f7170617238384d474c4e4d/json/";
     private final String SPORT_PATH = "ListPublicReservationSport";
@@ -38,45 +46,45 @@ public class OpenApiService {
 //    private final String END_INDEX = "/5";
 
 
-    // 접수중인 문화체험 서비스 전체 가져오기
-    public ItemListResponseDto getAllCultureService() {
+    // 접수중 서비스 전체 가져오기
+    public Page<ItemResponseDto> getAllService(String category, int page, int size) {
 
-        List<SeoulApi> list = seoulApiRepository.findByMAXCLASSNMAndSVCSTATNM("문화체험", "접수중");
+        Pageable pageable = PageRequest.of(page, size);
+        Page<SeoulApi> pageResult = seoulApiRepository.findByMAXCLASSNMAndSVCSTATNM(category, "접수중", pageable);
 
-        return ItemListResponseDto.of(list);
+        Page<ItemResponseDto> dtoPage = pageResult.map(ItemResponseDto::of);
 
+        return dtoPage;
     }
-    // 접수중인 체육시설 전체 가져오기
-    public ItemListResponseDto getAllSportService() {
 
-        List<SeoulApi> list = seoulApiRepository.findByMAXCLASSNMAndSVCSTATNM("체육시설", "접수중");
+    //서비스 데이터 단건 조회
+    public ItemResponseDto getService(String svcid) {
 
-        return ItemListResponseDto.of(list);
-
+        return ItemResponseDto.of(findService(svcid));
     }
-    // 접수중인 의료시설 전체 가져오기
-    public ItemListResponseDto getAllMedicalService() {
 
-        List<SeoulApi> list = seoulApiRepository.findByMAXCLASSNMAndSVCSTATNM("진료복지", "접수중");
+    public void likeService(String svcid, User user) {
+        SeoulApi service = findService(svcid);
 
-        return ItemListResponseDto.of(list);
-
+        if (seoulApiLikeRepository.existsByUserAndSeoulApi(user, service)) {
+            throw new DuplicateRequestException("이미 좋아요 한 서비스 입니다.");
+        } else {
+            SeoulApiLike seoulApiLike=SeoulApiLike.builder()
+                    .seoulApi(service)
+                    .user(user)
+                    .build();
+            seoulApiLikeRepository.save(seoulApiLike);
+        }
     }
-    // 접수중인 공간시설 전체 가져오기
-    public ItemListResponseDto getAllSpaceService() {
-
-        List<SeoulApi> list = seoulApiRepository.findByMAXCLASSNMAndSVCSTATNM("공간시설", "접수중");
-
-        return ItemListResponseDto.of(list);
-
-    }
-    // 접수중인 교육강좌 전체 가져오기
-    public ItemListResponseDto getAllEducationService() {
-
-        List<SeoulApi> list = seoulApiRepository.findByMAXCLASSNMAndSVCSTATNM("교육강좌", "접수중");
-
-        return ItemListResponseDto.of(list);
-
+    @Transactional
+    public void deleteLikeService(String svcid, User user) {
+        SeoulApi service = findService(svcid);
+        Optional<SeoulApiLike> seoulApiLike =seoulApiLikeRepository.findByUserAndSeoulApi(user,service);
+        if (seoulApiLike.isPresent()) {
+            seoulApiLikeRepository.delete(seoulApiLike.get());
+        } else {
+            throw new IllegalArgumentException("해당 서비스에 취소할 좋아요가 없습니다.");
+        }
     }
 
     //각 카테고리의 데이터 개수 가져오기 (updateDatabase()에서 전체 데이터 베이스를 업데이트 할때 사용.)
@@ -112,6 +120,7 @@ public class OpenApiService {
         }
 
     }
+
     // 각 카테고리 별 전체조회후 데이터베이스 업데이트
     @Transactional
     public void updateAllDatabase(HashMap<String, Integer> updateMap) {
@@ -163,6 +172,10 @@ public class OpenApiService {
 
     }
 
-
+    private SeoulApi findService(String svcid) {
+        return seoulApiRepository.findBySVCID(svcid).orElseThrow(() ->
+                new IllegalArgumentException("존재하지 않는 서비스 입니다.")
+        );
+    }
 
 }

@@ -1,24 +1,10 @@
 package com.sparta.seoulmate.openApi.scheduler;
 
-import com.sparta.seoulmate.openApi.dto.UpdateItemDto;
-import com.sparta.seoulmate.openApi.repository.SeoulApiRepository;
 import com.sparta.seoulmate.openApi.service.OpenApiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j(topic = "SeoulApiScheduler")
 @Component
@@ -26,8 +12,6 @@ import java.util.concurrent.TimeUnit;
 public class SeoulApiScheduler {
 
     private final OpenApiService openApiService;
-    private final RestTemplate restTemplate;
-    private final SeoulApiRepository seoulApiRepository;
 
     private final String API_KEY = "5a65746f7170617238384d474c4e4d/json/";
     //    크론 스케줄링

@@ -16,7 +16,7 @@ import java.util.List;
 @Entity
 @Getter
 @Table(name = "users")
-@EqualsAndHashCode(of="id")
+@EqualsAndHashCode(of = "id")
 public class User extends Timestamped {
 
     @Id
@@ -50,8 +50,6 @@ public class User extends Timestamped {
     @Column(nullable = false)
     private String address;
 
-    @Column
-    private String image;
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
@@ -64,13 +62,19 @@ public class User extends Timestamped {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private final List<PasswordManager> passwordManagerList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private final List<SeoulApiLike> seoulApiLikes = new ArrayList<>();
+
     @Builder.Default
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserInterest> userInterests = new ArrayList<>();
 
-    public User update(String nickname, String profileImageUrl) {
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Image image;
+
+    public User update(String nickname) {
         this.nickname = nickname;
-        this.image = profileImageUrl;
         return this;
     }
 

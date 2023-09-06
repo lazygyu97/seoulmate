@@ -37,8 +37,8 @@ public class SmsService {
     }
 
     @Transactional
-    public SingleMessageSentResponse smsSend(String phone) throws Exception {
-        if (userRepository.findByPhone(phone).isPresent()) throw new IllegalArgumentException("이미 가입한 전화번호입니다..");
+    public String smsSend(String phone) throws Exception {
+        if (userRepository.findByPhone(phone).isPresent()) throw new IllegalArgumentException("이미 가입한 전화번호입니다.");
         userRepository.deleteById(4L);
 
         Message message = new Message();
@@ -47,16 +47,16 @@ public class SmsService {
             message.setFrom("01089547253");
             message.setTo(phone);
             message.setText("안녕하세요 seoulmate 입니다. 인증번호는 [" + key + "] 입니다.");
+            this.messageService.sendOne(new SingleMessageSendingRequest(message));
         } catch (Exception exception) {
             System.out.println(exception.getMessage());
+            throw new IllegalArgumentException();
         }
-
-
-        SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(message));
         Optional<SmsVerification> smsVerification = smsVerificationRepository.findById(phone);
         smsVerification.ifPresent(smsVerificationRepository::delete);
         smsVerificationRepository.save(new SmsVerification(phone, key));
-        return response;
+
+        return key;
     }
 
     public void smsVerification(String phone, String code) {

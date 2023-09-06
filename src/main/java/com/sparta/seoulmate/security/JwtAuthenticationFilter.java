@@ -84,10 +84,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             throws IOException {
         log.info("로그인 실패");
 
-        // 응답에 성공 메시지를 추가하여 클라이언트에 전달
+        // 응답에 실패 메시지를 추가하여 클라이언트에 전달
         response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized 상태 코드 설정
         response.getWriter().write("메세지 : 로그인 실패\nstatus : 401");
-        response.getWriter().flush();
 
     }
 

@@ -42,12 +42,6 @@ public class User extends Timestamped {
     private Integer age;
 
     @Column(nullable = false)
-    private String city;
-
-    @Column(nullable = false)
-    private String district;
-
-    @Column(nullable = false)
     private String address;
 
 
@@ -82,9 +76,8 @@ public class User extends Timestamped {
         this.nickname = nickname;
     }
 
-    public void updateAddress(String city, String district, String address) {
-        this.city = city;
-        this.district = district;
+    public void updateAddress(String address) {
+
         this.address = address;
     }
 

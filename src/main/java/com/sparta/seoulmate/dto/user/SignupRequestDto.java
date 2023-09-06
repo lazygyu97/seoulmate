@@ -24,17 +24,11 @@ public class SignupRequestDto {
     @NotBlank
     private String phone;
     @NotBlank
-    private String city;
-    @NotBlank
-    private String district;
-    @NotBlank
     private String address;
     @Positive
-    private Integer age;
-
+    private String age;
     @NotNull
-    UserGenderEnum gender;
-
+    String gender;
     @Email
     @NotBlank
     private String email;
@@ -44,19 +38,23 @@ public class SignupRequestDto {
     @Builder.Default
     private String adminToken = "";
 
+    UserGenderEnum genderEnum;
 
     @Builder
     public User toEntity(UserRoleEnum role,String password) {
+        if(gender=="남성"){
+            this.genderEnum=UserGenderEnum.MALE;
+        }else {
+            this.genderEnum=UserGenderEnum.FEMALE;
+        }
         return User.builder()
                 .username(this.username)
                 .password(password)
                 .nickname(this.nickname)
                 .phone(this.phone)
-                .city(this.city)
-                .district(this.district)
                 .address(this.address)
-                .age(this.age)
-                .gender(this.gender)
+                .age(Integer.valueOf(this.age))
+                .gender(this.genderEnum)
                 .email(this.email)
                 .role(role)
                 .build();

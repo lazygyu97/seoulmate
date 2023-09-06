@@ -23,8 +23,6 @@ public class UserProfileResponseDto {
     private String nickname;
     private String phone;
     private Integer age;
-    private String city;
-    private String district;
     private String address;
     private String image;
     private List<ItemResponseDto> seoulApiLikes;
@@ -38,8 +36,6 @@ public class UserProfileResponseDto {
                 .nickname(user.getNickname())
                 .phone(user.getPhone())
                 .age(user.getAge())
-                .city(user.getCity())
-                .district(user.getDistrict())
                 .address(user.getAddress())
                 .image(user.getImage().getImageUrl())
                 .seoulApiLikes(user.getSeoulApiLikes().stream().map(seoulApiLike -> ItemResponseDto.of(seoulApiLike.getSeoulApi())).toList())

@@ -34,8 +34,25 @@ public class UserController {
     private final SmsService smsService;
     private final InterestService interestService;
 
-    // 회원가입
+    @GetMapping
+    public ResponseEntity getUserInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.badRequest().body("로그인 정보가 유효하지않습니다.");
+        }
+        return ResponseEntity.ok().body(userService.getUserInfo(userDetails.getUser()));
+    }
 
+    //아이디 중복체크
+    @PostMapping("/{username}")
+    public ResponseEntity<ApiResponseDto> checkId(@PathVariable String username) {
+        log.info(username);
+        if (username == null || username.equals("")) {
+            return ResponseEntity.badRequest().body(new ApiResponseDto("아이디를 입력해주세요", HttpStatus.BAD_REQUEST.value()));
+        }
+        return userService.checkId(username);
+    }
+
+    // 회원가입
     @PostMapping("/signup")
     public ResponseEntity<ApiResponseDto> signUp(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
 
@@ -57,8 +74,7 @@ public class UserController {
 
     // 사용자의 관심사 등록
     @PostMapping("/interest")
-    public ResponseEntity<ApiResponseDto> saveInterest(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                       @RequestBody List<String> list) {
+    public ResponseEntity<ApiResponseDto> saveInterest(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody List<String> list) {
 
         interestService.saveInterest(userDetails.getUser(), list);
         return ResponseEntity.ok().body(new ApiResponseDto("관심사 등록 성공", HttpStatus.OK.value()));
@@ -85,7 +101,13 @@ public class UserController {
     //인증 메일 전송
     @PostMapping("/signup/mail")
     public ResponseEntity mailSend(@RequestBody EmailRequestDto requestDto) throws Exception {
-        return ResponseEntity.status(201).body(emailService.sendSimpleMessage(requestDto.getEmail()));
+        String ePw;
+        try {
+            ePw = emailService.sendSimpleMessage(requestDto.getEmail());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("이메일 전송에 실패했습니다.");
+        }
+        return ResponseEntity.status(201).body(ePw);
     }
 
     // 인증 메일 인증
@@ -98,7 +120,15 @@ public class UserController {
     // 인증 문자 전송
     @PostMapping("/signup/sms")
     public ResponseEntity smsSend(@RequestBody SmsRequestDto requestDto) throws Exception {
-        return ResponseEntity.status(201).body(smsService.smsSend(requestDto.getPhone()));
+        String key;
+        try {
+            key= smsService.smsSend(requestDto.getPhone());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("메시지 전송에 실패했습니다.");
+
+        }
+        return ResponseEntity.status(201).body(key);
     }
 
     //인증 문자 인증
@@ -117,15 +147,11 @@ public class UserController {
 
     // 프로필 수정(닉네임)
     @PutMapping("/nickname")
-    public ResponseEntity<ApiResponseDto> updateNickname(
-            @RequestBody UpdateNicknameRequestDto requestDto,
-            @AuthenticationPrincipal UserDetailsImpl userDetails
-    ) {
+    public ResponseEntity<ApiResponseDto> updateNickname(@RequestBody UpdateNicknameRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         if (userDetails == null || userDetails.getUser() == null) {
             // userDetails 가 null 인 경우 또는 userDetails.getUser()가 null 인 경우 처리
             // 예를 들어, 인증되지 않은 사용자 또는 유효하지 않은 사용자의 요청일 수 있습니다.
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ApiResponseDto("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED.value()));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponseDto("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED.value()));
         }
 
         userService.updateNickname(requestDto, userDetails.getUser());
@@ -134,14 +160,10 @@ public class UserController {
 
     // 프로필 수정(주소)
     @PutMapping("/address")
-    public ResponseEntity<ApiResponseDto> updateAddress(
-            @RequestBody UpdateAddressRequestDto requestDto,
-            @AuthenticationPrincipal UserDetailsImpl userDetails
-    ) {
+    public ResponseEntity<ApiResponseDto> updateAddress(@RequestBody UpdateAddressRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         if (userDetails == null || userDetails.getUser() == null) {
             // 사용자가 로그인하지 않은 경우 또는 인증 정보가 올바르게 전달되지 않은 경우 처리
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ApiResponseDto("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED.value()));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponseDto("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED.value()));
         }
 
         userService.updateAddress(requestDto, userDetails.getUser());
@@ -150,14 +172,11 @@ public class UserController {
 
     // 프로필 수정(이미지)
     @PutMapping("/image")
-    public ResponseEntity<ApiResponseDto> updateImage(
-            @RequestPart(value = "file") MultipartFile file,
-            @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<ApiResponseDto> updateImage(@RequestPart(value = "file") MultipartFile file, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         if (userDetails == null || userDetails.getUser() == null) {
             // 사용자가 로그인하지 않은 경우 또는 인증 정보가 올바르게 전달되지 않은 경우 처리
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ApiResponseDto("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED.value()));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponseDto("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED.value()));
         }
 
         userService.updateImage(file, userDetails.getUser());
@@ -180,9 +199,8 @@ public class UserController {
 
     // 비밀번호 수정
     @PutMapping("/password")
-    public ResponseEntity<ApiResponseDto> updatePassword(@RequestBody UpdatePasswordRequestDto requestDto,
-                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ApiResponseDto> updatePassword(@RequestBody UpdatePasswordRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         userService.updatePassword(requestDto, userDetails.getUser());
-        return ResponseEntity.ok().body(new ApiResponseDto("비밀번호 수정 성공",HttpStatus.OK.value()));
+        return ResponseEntity.ok().body(new ApiResponseDto("비밀번호 수정 성공", HttpStatus.OK.value()));
     }
 }

@@ -24,7 +24,7 @@ public class WithdrawalScheduler {
     private final UserRepository userRepository;
 
     // 스케줄링 주기 설정
-    @Scheduled(cron = "0 0 1,10,19 * * *") // 60000 : 1분
+    @Scheduled(cron = "0 30 7,15,23 * * *")
     @Transactional
     public void cleanupExpiredWithdrawals() {
         LocalDateTime standardTime = LocalDateTime.now().minusDays(7); // 현재 시간보다 n시간 전에 있었던 것을 삭제 -> n시간이 유예기간

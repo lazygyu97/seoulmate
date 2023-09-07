@@ -152,7 +152,7 @@ public class UserController {
     @PutMapping("/image")
     public ResponseEntity<ApiResponseDto> updateImage(
             @RequestPart(value = "file") MultipartFile file,
-            @AuthenticationPrincipal UserDetailsImpl userDetails){
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         if (userDetails == null || userDetails.getUser() == null) {
             // 사용자가 로그인하지 않은 경우 또는 인증 정보가 올바르게 전달되지 않은 경우 처리
@@ -183,6 +183,12 @@ public class UserController {
     public ResponseEntity<ApiResponseDto> updatePassword(@RequestBody UpdatePasswordRequestDto requestDto,
                                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
         userService.updatePassword(requestDto, userDetails.getUser());
-        return ResponseEntity.ok().body(new ApiResponseDto("비밀번호 수정 성공",HttpStatus.OK.value()));
+        return ResponseEntity.ok().body(new ApiResponseDto("비밀번호 수정 성공", HttpStatus.OK.value()));
+    }
+
+    // 회원 탈퇴
+    @DeleteMapping("/withdrawal")
+    public ResponseEntity<String> withdrawUser( @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.withdrawUser(userDetails.getUser());
     }
 }

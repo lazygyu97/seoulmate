@@ -29,6 +29,7 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final FileComponent fileComponent;
     private final ImageRepository imageRepository;
+    private final NotificationService notificationService;
 
     /**
      * 게시글 생성
@@ -167,6 +168,7 @@ public class PostService {
         } else {
             PostLike postLike = new PostLike(user, post);
             postLikeRepository.save(postLike);
+            notificationService.postLikeNotification(postLike); // 좋아요 알림 추가
         }
     }
 

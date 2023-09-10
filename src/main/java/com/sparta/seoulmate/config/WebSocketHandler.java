@@ -2,13 +2,20 @@ package com.sparta.seoulmate.config;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.seoulmate.dto.chat.ChatMessageDto;
-import com.sparta.seoulmate.dto.chat.ChatRoomDto;
+import com.sparta.seoulmate.dto.chat.MessageDto;
+import com.sparta.seoulmate.dto.chat.RoomDto;
+import com.sparta.seoulmate.entity.User;
+import com.sparta.seoulmate.entity.chat.ChatMessage;
+import com.sparta.seoulmate.entity.chat.ChatRoom;
+import com.sparta.seoulmate.repository.UserRepository;
+import com.sparta.seoulmate.repository.chat.ChatMessageRepository;
+import com.sparta.seoulmate.repository.chat.ChatRoomRepository;
 import com.sparta.seoulmate.service.chat.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -23,6 +30,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class WebSocketHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper;
+    private final ChatMessageRepository chatMessageRepository;
+    private final UserRepository userRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final ChatService chatService;
 
     // 각 채팅방 별로 WebSocket 세션을 저장하는 맵
@@ -38,6 +48,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
                 .computeIfAbsent(roomId, id -> ConcurrentHashMap.newKeySet())
                 .add(session);
     }
+
     private String extractRoomIdFromSession(WebSocketSession session) {
         // URI에서 uuid 파라미터 값을 추출하는 로직을 작성
         // 예: ws://localhost:8080/ws/chat?uuid=sample-uuid 여기에서 'sample-uuid'를 추출
@@ -52,22 +63,35 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Override
     @Transactional
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
         log.info("payload {}", payload);
 
-        ChatMessageDto chatMessageDto = objectMapper.readValue(payload, ChatMessageDto.class);
-        log.info("session {}", chatMessageDto.toString());
-        String roomId = chatMessageDto.getRoomId();
+        MessageDto messageDto = objectMapper.readValue(payload, MessageDto.class);
+        String roomId = messageDto.getRoomId();
+        log.info("session {}", messageDto);
 
-        ChatRoomDto chatRoomDto = chatService.findRoomById(chatMessageDto.getRoomId());
-        log.info("room {}", chatRoomDto.toString());
+        User user = userRepository.findByUsername(messageDto.getSender()).get();
 
-        chatRoomDto.handleActions(session, chatMessageDto, chatService);
+        ChatRoom chatRoom = chatRoomRepository.findByUuid(roomId).get();
+        log.info("room {}", chatRoom);
+
+        ChatMessage chatMessage = messageDto.toEntity(user, chatRoom);
+        chatMessageRepository.save(chatMessage);
 
         // 모든 해당 채팅방의 사용자에게 메시지 전송
         for (WebSocketSession roomSession : roomSessionsMap.get(roomId)) {
             roomSession.sendMessage(message);
         }
+
+        // message의 유형에 따라 handleAction 호출
+        RoomDto roomDto = new RoomDto(roomId, chatRoom.getRoomName()); // RoomDto 생성
+        roomDto.handleAction(session, messageDto, chatService);
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+        // 연결이 종료되면 모든 채팅방에서 해당 세션을 제거
+        roomSessionsMap.values().forEach(sessions -> sessions.remove(session));
     }
 }

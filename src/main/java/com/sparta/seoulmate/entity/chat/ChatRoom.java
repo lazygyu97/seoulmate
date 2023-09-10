@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,4 +22,8 @@ public class ChatRoom {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "chatRoom", orphanRemoval = true)
+    private List<ChatMessage> ChatMessages = new ArrayList<>();
 }

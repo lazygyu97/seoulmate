@@ -19,11 +19,4 @@ public class Notification extends Timestamped {
 
     @Column
     private String content;
-
-//    @Column(nullable = false)
-//    private boolean isRead;
-//
-//    public void read() {
-//        this.isRead = true;
-//    }
 }

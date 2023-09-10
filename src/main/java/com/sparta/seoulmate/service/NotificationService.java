@@ -11,7 +11,6 @@ import com.sparta.seoulmate.repository.EmitterRepository;
 import com.sparta.seoulmate.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -37,7 +36,7 @@ public class NotificationService {
 
         String eventId = makeTimeIncludeId(user);
         sendToClient(emitter, emitterId, eventId,
-                 user.getId() + "번 사용자에게 연결되었습니다.");
+                user.getId() + "번 사용자에게 연결되었습니다.");
 
         if (!lastEventId.isEmpty()) {
             Map<String, Object> events = emitterRepository.findAllEventCacheStartWithUserId(
@@ -84,7 +83,7 @@ public class NotificationService {
         return notification;
     }
 
-//     알림 보내기
+    //     알림 보내기
     public void sendNotification(NotificationRequestDto request, Notification notification) {
         String receiverId = String.valueOf(request.getReceiver().getId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
@@ -137,7 +136,7 @@ public class NotificationService {
         send(requestDto);
     }
 
-//  사용자 follow 시 전송되는 알림
+    //  사용자 follow 시 전송되는 알림
     @Transactional
     public void followNotification(Follow follow) {
         User receiver = follow.getFollowingUser(); // 팔로우 받은 사람

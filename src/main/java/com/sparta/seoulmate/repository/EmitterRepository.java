@@ -1,7 +1,6 @@
 package com.sparta.seoulmate.repository;
 
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -17,14 +16,13 @@ public class EmitterRepository {
 
     public SseEmitter save(String emitterId, SseEmitter sseEmitter) {
         emitters.put(emitterId, sseEmitter);
-        // 로그 기록 추가
-        System.out.println("SseEmitter saved with ID: " + emitterId);
         return sseEmitter;
     }
 
     public void saveEventCache(String eventCacheId, Object event) {
         eventCache.put(eventCacheId, event);
     }
+
     public Map<String, SseEmitter> findAllEmitterStartWithByUserId(String userId) {
         return emitters.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(userId))

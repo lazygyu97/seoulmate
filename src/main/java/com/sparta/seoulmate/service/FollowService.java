@@ -25,6 +25,7 @@ public class FollowService {
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
     private final PostRepository postRepository;
+    private final NotificationService notificationService;
 
     // 내가 팔로우 한 사람 조회
     public List<FollowResponseDto> viewFollowingList(User user) {
@@ -96,11 +97,13 @@ public class FollowService {
         }
 
         // followRepository DB 저장
-        followRepository.save(Follow.builder()
+        Follow follow = followRepository.save(Follow.builder()
                 .user(followerUser)
                 .followingUser(followingUser)
                 .followingDateTime(LocalDateTime.now())
                 .build());
+
+        notificationService.followNotification(follow);
 
         return followingUser.getNickname();
     }

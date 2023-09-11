@@ -4,17 +4,21 @@ import com.sparta.seoulmate.config.FileComponent;
 import com.sparta.seoulmate.dto.ApiResponseDto;
 import com.sparta.seoulmate.dto.user.UserResponseDto;
 import com.sparta.seoulmate.dto.user.*;
-import com.sparta.seoulmate.entity.Image;
-import com.sparta.seoulmate.entity.PasswordManager;
-import com.sparta.seoulmate.entity.User;
-import com.sparta.seoulmate.entity.UserRoleEnum;
-import com.sparta.seoulmate.entity.redishash.*;
+import com.sparta.seoulmate.entity.*;
+import com.sparta.seoulmate.entity.redishash.Blacklist;
+import com.sparta.seoulmate.entity.redishash.EmailVerification;
+import com.sparta.seoulmate.entity.redishash.RefreshToken;
+import com.sparta.seoulmate.entity.redishash.SmsVerification;
 import com.sparta.seoulmate.jwt.JwtUtil;
 import com.sparta.seoulmate.repository.*;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Key;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +35,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -42,6 +48,7 @@ public class UserService {
     private final PasswordManagerRepository passwordManagerRepository;
     private final FileComponent fileComponent;
     private final ImageRepository imageRepository;
+    private final WithdrawalRepository withdrawalRepository;
 
     // ADMIN_TOKEN
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
@@ -193,7 +200,6 @@ public class UserService {
 
     }
 
-
     @Transactional
     public void updateImage(MultipartFile file, User user) {
         User targetUser = userRepository.findById(user.getId())
@@ -250,5 +256,35 @@ public class UserService {
         return userRepository.findByUsername(username).orElseThrow(() ->
                 new IllegalArgumentException("존재하지 않는 사용자 입니다.")
         );
+
+    // 회원 탈퇴
+    @Transactional
+    public ResponseEntity<String> withdrawUser(User user) {
+
+        User targetUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다"));
+
+        targetUser.denyUser();
+
+        // Withdrawal 엔티티를 생성하고 예정 탈퇴 시간을 설정
+        LocalDateTime requestTime = LocalDateTime.now();
+        LocalDateTime expireTime = LocalDateTime.now().plusDays(7);
+
+        // 이미 탈퇴 진행 중인지 확인
+        Optional<Withdrawal> existingWithdrawal = withdrawalRepository.findByUserId(targetUser.getId());
+        if (existingWithdrawal.isPresent()) {
+            return ResponseEntity.badRequest().body("이미 탈퇴 진행 중입니다.");
+        } else{
+            Withdrawal withdrawal = Withdrawal.builder()
+                    .user(targetUser) // 사용자 엔티티를 설정
+                    .requestTime(requestTime)
+                    .expireTime(expireTime)
+                    .build();
+            withdrawalRepository.save(withdrawal); // Withdrawal 정보 저장
+
+            return ResponseEntity.ok("탈퇴 요청 완료");
+        }
+
+
     }
 }

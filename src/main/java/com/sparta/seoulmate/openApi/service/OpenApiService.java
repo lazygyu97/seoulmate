@@ -3,8 +3,10 @@ package com.sparta.seoulmate.openApi.service;
 import com.sparta.seoulmate.entity.SeoulApi;
 import com.sparta.seoulmate.entity.SeoulApiLike;
 import com.sparta.seoulmate.entity.User;
+
 import com.sparta.seoulmate.entity.UserInterest;
 import com.sparta.seoulmate.openApi.dto.ItemListResponseDto;
+
 import com.sparta.seoulmate.openApi.dto.ItemResponseDto;
 import com.sparta.seoulmate.openApi.dto.UpdateItemDto;
 import com.sparta.seoulmate.openApi.repository.SeoulApiLikeRepository;
@@ -54,6 +56,8 @@ public class OpenApiService {
         List<SeoulApi> result = seoulApiRepository.findBySVCSTATNM("접수중");
         return ItemListResponseDto.of(result);
     }
+  
+   // 서비스 추천 로직
     public ItemListResponseDto getRecommendService(User user) {
         List<String> interest = Optional.ofNullable(user.getUserInterests())
                 .map(interests -> interests.stream()
@@ -124,6 +128,7 @@ public class OpenApiService {
     public void deleteLikeService(String svcid, User user) {
         SeoulApi service = findService(svcid);
         Optional<SeoulApiLike> seoulApiLike = seoulApiLikeRepository.findByUserAndSeoulApi(user, service);
+
         if (seoulApiLike.isPresent()) {
             seoulApiLikeRepository.delete(seoulApiLike.get());
         } else {
@@ -221,6 +226,5 @@ public class OpenApiService {
                 new IllegalArgumentException("존재하지 않는 서비스 입니다.")
         );
     }
-
 
 }

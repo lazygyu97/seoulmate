@@ -37,8 +37,8 @@ public class CommentController {
     // Comment 다건 조회
     @GetMapping("/comments")
     public ResponseEntity<CommentListResponseDto> getComments() {
-        CommentListResponseDto commentResponseDto = commentService.getComments();
-        return ResponseEntity.ok().body(commentResponseDto);
+        CommentListResponseDto commentListResponseDto = commentService.getComments();
+        return ResponseEntity.ok().body(commentListResponseDto);
     }
 
     // Comment 수정

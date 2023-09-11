@@ -3,6 +3,7 @@ package com.sparta.seoulmate.openApi.controller;
 import com.sparta.seoulmate.dto.ApiResponseDto;
 import com.sparta.seoulmate.entity.User;
 import com.sparta.seoulmate.openApi.dto.ItemListResponseDto;
+
 import com.sparta.seoulmate.openApi.dto.ItemResponseDto;
 import com.sparta.seoulmate.openApi.service.OpenApiService;
 import com.sparta.seoulmate.security.UserDetailsImpl;
@@ -13,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -33,7 +36,6 @@ public class OpenApiController {
     @GetMapping("/services/recommend")
     public ResponseEntity<ItemListResponseDto> getRecommendService(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         ItemListResponseDto result = openApiService.getRecommendService(userDetails.getUser());
-
         return ResponseEntity.ok().body(result);
     }
 
@@ -47,6 +49,7 @@ public class OpenApiController {
     //서비스 데이터 단건 조회
     @PostMapping("/service/like")
     public ResponseEntity<ApiResponseDto> likeService(@RequestParam("svcid") String svcid, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
         openApiService.likeService(svcid, userDetails.getUser());
         return ResponseEntity.status(201).body(new ApiResponseDto("서비스 좋아요 성공", HttpStatus.CREATED.value()));
     }
@@ -54,6 +57,7 @@ public class OpenApiController {
     @DeleteMapping("/service/like")
     public ResponseEntity<ApiResponseDto> deleteLikeService(@RequestParam("svcid") String svcid, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         openApiService.deleteLikeService(svcid, userDetails.getUser());
+
         return ResponseEntity.status(201).body(new ApiResponseDto("서비스 좋아요 해제 성공", HttpStatus.CREATED.value()));
     }
 

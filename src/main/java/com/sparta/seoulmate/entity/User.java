@@ -44,12 +44,6 @@ public class User extends Timestamped {
     private Integer age;
 
     @Column(nullable = false)
-    private String city;
-
-    @Column(nullable = false)
-    private String district;
-
-    @Column(nullable = false)
     private String address;
 
     @Column(nullable = false)
@@ -77,8 +71,8 @@ public class User extends Timestamped {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private final List<SeoulApiLike> seoulApiLikes = new ArrayList<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
+
     private List<UserInterest> userInterests = new ArrayList<>();
 
 
@@ -94,9 +88,8 @@ public class User extends Timestamped {
         this.nickname = nickname;
     }
 
-    public void updateAddress(String city, String district, String address) {
-        this.city = city;
-        this.district = district;
+    public void updateAddress(String address) {
+
         this.address = address;
     }
 

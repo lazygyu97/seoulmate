@@ -1,6 +1,7 @@
 package com.sparta.seoulmate.controller;
 
 import com.sparta.seoulmate.dto.ApiResponseDto;
+import com.sparta.seoulmate.dto.post.PostListResponseDto;
 import com.sparta.seoulmate.dto.post.PostRequestDto;
 import com.sparta.seoulmate.dto.post.PostResponseDto;
 import com.sparta.seoulmate.security.UserDetailsImpl;
@@ -48,9 +49,23 @@ public class PostController {
             @RequestParam("page") int page,
             @RequestParam("size") int size,
             @RequestParam("sortBy") String sortBy,
-            @RequestParam("isAsc") boolean isAsc
+            @RequestParam("isAsc") boolean isAsc,
+            @RequestParam(value = "address", required = false) String address
     ) {
-        Page<PostResponseDto> result = postService.getPosts(page - 1, size, sortBy, isAsc);
+        Page<PostResponseDto> result;
+        if (address != null && !address.isEmpty()) {
+            // 주소(address)를 이용한 페이징 처리
+            result = postService.getPostsByAddress(page - 1, size, sortBy, isAsc, address);
+        } else {
+            // 주소가 주어지지 않은 경우 전체 게시물에 대한 페이징 처리
+            result = postService.getPosts(page - 1, size, sortBy, isAsc);
+        }
+        return ResponseEntity.ok().body(result);
+    }
+
+    @GetMapping("/posts/all")
+    public ResponseEntity<PostListResponseDto> getAllPosts(){
+            PostListResponseDto result= postService.getAllPosts();
         return ResponseEntity.ok().body(result);
     }
 

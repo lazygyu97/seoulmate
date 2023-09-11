@@ -93,11 +93,6 @@ public class SeoulApi {
     @Column(columnDefinition = "LONGTEXT")
     private String IMGURL;
 
-    // 상세 내용을 나타내는 필드
-    @Lob
-    @Column(columnDefinition = "LONGTEXT")
-    private String DTLCONT;
-
     // 전화번호를 나타내는 필드
     @Column
     private String TELNO;
@@ -143,7 +138,6 @@ public class SeoulApi {
                 .RCPTENDDT(itemJson.getString("RCPTENDDT"))
                 .AREANM(itemJson.getString("AREANM"))
                 .IMGURL(itemJson.getString("IMGURL"))
-                .DTLCONT(itemJson.getString("DTLCONT"))
                 .TELNO(itemJson.getString("TELNO"))
                 .V_MIN(itemJson.getString("V_MIN"))
                 .V_MAX(itemJson.getString("V_MAX"))

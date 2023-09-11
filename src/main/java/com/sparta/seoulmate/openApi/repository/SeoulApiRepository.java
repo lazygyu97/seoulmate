@@ -13,4 +13,10 @@ public interface SeoulApiRepository extends JpaRepository<SeoulApi,String> {
 
     Optional<SeoulApi> findBySVCID(String svcid);
 
+    Optional<List<SeoulApi>> findByAREANMAndMINCLASSNMAndSVCSTATNM(String address, String randomInterest, String svcStatNm);
+
+    Optional<List<SeoulApi>> findByAREANMAndSVCSTATNM(String address, String svcStatNm);
+
+    List<SeoulApi> findBySVCSTATNM(String svcStatNm);
+
 }

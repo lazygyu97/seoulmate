@@ -10,12 +10,14 @@ import lombok.Getter;
 public class PostRequestDto {
     private String title;
     private String content;
+    private String address;
 
     public Post toEntity(User author) {
         Post post = Post.builder()
                 .author(author)
                 .title(this.title)
                 .content(this.content)
+                .address(author.getAddress())
                 .build();
         return post;
     }

@@ -28,7 +28,6 @@ public class ItemResponseDto {
     private String RCPTENDDT;//접수종료일시
     private String AREANM;//지역명
     private String IMGURL;//이미지경로
-    private String DTLCONT;//상세내용
     private String TELNO;//전화번호
     private String V_MIN;//서비스이용 시작시간
     private String V_MAX;//서비스이용 종료시간
@@ -57,7 +56,6 @@ public class ItemResponseDto {
                 .RCPTENDDT(seoulApi.getRCPTENDDT())
                 .AREANM(seoulApi.getAREANM())
                 .IMGURL(seoulApi.getIMGURL())
-                .DTLCONT(seoulApi.getDTLCONT())
                 .TELNO(seoulApi.getTELNO())
                 .V_MIN(seoulApi.getV_MIN())
                 .V_MAX(seoulApi.getV_MAX())

@@ -1,6 +1,8 @@
 package com.sparta.seoulmate.service;
 
 import com.sparta.seoulmate.config.FileComponent;
+import com.sparta.seoulmate.dto.ApiResponseDto;
+import com.sparta.seoulmate.dto.user.UserResponseDto;
 import com.sparta.seoulmate.dto.user.*;
 import com.sparta.seoulmate.entity.*;
 import com.sparta.seoulmate.entity.redishash.Blacklist;
@@ -12,7 +14,11 @@ import com.sparta.seoulmate.repository.*;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -151,7 +157,7 @@ public class UserService {
         if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
-        targetUser.updateAddress(requestDto.getCity(), requestDto.getDistrict(), requestDto.getAddress());
+        targetUser.updateAddress(requestDto.getAddress());
     }
 
     // 프로필 조회
@@ -194,13 +200,6 @@ public class UserService {
 
     }
 
-    //user가 DB 내에 존재하는지 검사
-    private User findUser(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() ->
-                new IllegalArgumentException("존재하지 않는 사용자 입니다.")
-        );
-    }
-
     @Transactional
     public void updateImage(MultipartFile file, User user) {
         User targetUser = userRepository.findById(user.getId())
@@ -237,6 +236,26 @@ public class UserService {
             throw new RuntimeException(e);
         }
     }
+
+    //프론트 router 체크를 위한 로직
+    public UserResponseDto getUserInfo(User user) {
+        return UserResponseDto.of(user);
+    }
+
+    public ResponseEntity<ApiResponseDto> checkId(String username) {
+        if(userRepository.findByUsername(username).isEmpty()){
+            return ResponseEntity.ok().body(new ApiResponseDto("중복체크 성공", HttpStatus.OK.value()));
+        }else {
+            return ResponseEntity.badRequest().body(new ApiResponseDto("중복된 회원 아이디입니다.", HttpStatus.OK.value()));
+
+        }
+    }
+
+    //user가 db내 존재하는지 검사
+    private User findUser(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() ->
+                new IllegalArgumentException("존재하지 않는 사용자 입니다.")
+        );
 
     // 회원 탈퇴
     @Transactional

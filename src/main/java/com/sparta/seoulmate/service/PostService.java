@@ -1,6 +1,7 @@
 package com.sparta.seoulmate.service;
 
 import com.sparta.seoulmate.config.FileComponent;
+import com.sparta.seoulmate.dto.post.PostListResponseDto;
 import com.sparta.seoulmate.dto.post.PostRequestDto;
 import com.sparta.seoulmate.dto.post.PostResponseDto;
 import com.sparta.seoulmate.entity.*;
@@ -80,7 +81,20 @@ public class PostService {
         Page<Post> postList = postRepository.findAll(pageable);
         return postList.map(PostResponseDto::of);
     }
+    public Page<PostResponseDto> getPostsByAddress(int i, int size, String sortBy, boolean isAsc, String address) {
+        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(i, size, sort);
 
+        Page<Post> postList = postRepository.findByAddress(address, pageable); // 주소로 게시물 검색
+
+        return postList.map(PostResponseDto::of);
+    }
+
+    public PostListResponseDto getAllPosts() {
+        List<Post> list= postRepository.findAll();
+        return PostListResponseDto.of(list);
+    }
     /**
      * 게시글을 검색하고 검색 결과를 페이지로 반환
      *
@@ -198,6 +212,7 @@ public class PostService {
     private Post findPost(Long id) {
         return postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("선택한 게시글은 존재하지 않습니다."));
     }
+
 
 
 }

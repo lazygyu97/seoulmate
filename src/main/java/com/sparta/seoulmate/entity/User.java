@@ -60,7 +60,7 @@ public class User extends Timestamped {
     private final List<SeoulApiLike> seoulApiLikes = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
     private List<UserInterest> userInterests = new ArrayList<>();
 
 

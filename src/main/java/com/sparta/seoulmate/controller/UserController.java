@@ -126,7 +126,6 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("메시지 전송에 실패했습니다.");
-
         }
         return ResponseEntity.status(201).body(key);
     }

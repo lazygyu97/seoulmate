@@ -28,7 +28,6 @@ public class UpdateItemDto {
                 .RCPTENDDT(itemJson.getString("RCPTENDDT"))
                 .AREANM(itemJson.getString("AREANM"))
                 .IMGURL(itemJson.getString("IMGURL"))
-                .DTLCONT(itemJson.getString("DTLCONT"))
                 .TELNO(itemJson.getString("TELNO"))
                 .V_MIN(itemJson.getString("V_MIN"))
                 .V_MAX(itemJson.getString("V_MAX"))

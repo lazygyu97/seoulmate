@@ -21,6 +21,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
+    private final NotificationService notificationService;
 
     // Comment 생성
     public CommentResponseDto createComment (Long postId, User user, CommentRequestDto commentRequestDto) {
@@ -31,6 +32,9 @@ public class CommentService {
 
         // 작성한 댓글 저장
         Comment savedComment = commentRepository.save(comment);
+
+        // 글 작성자에게 알림 전송
+        notificationService.commentNotification(savedComment);
 
         return CommentResponseDto.of(savedComment);
     }

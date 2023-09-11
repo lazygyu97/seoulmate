@@ -1,5 +1,7 @@
 package com.sparta.seoulmate.entity;
 
+import com.sparta.seoulmate.entity.chat.ChatMessage;
+import com.sparta.seoulmate.entity.chat.ChatRoom;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -60,6 +62,14 @@ public class User extends Timestamped {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Withdrawal> withdrawals = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    @Builder.Default
+    private List<ChatMessage> chatMessages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    @Builder.Default
+    private List<ChatRoom> chatRooms = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private final List<PasswordManager> passwordManagerList = new ArrayList<>();

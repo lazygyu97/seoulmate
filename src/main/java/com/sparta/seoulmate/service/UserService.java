@@ -256,6 +256,7 @@ public class UserService {
         return userRepository.findByUsername(username).orElseThrow(() ->
                 new IllegalArgumentException("존재하지 않는 사용자 입니다.")
         );
+    }
 
     // 회원 탈퇴
     @Transactional

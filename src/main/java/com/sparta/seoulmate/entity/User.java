@@ -50,7 +50,6 @@ public class User extends Timestamped {
     @Column(nullable = false)
     private String address;
 
-
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
@@ -58,6 +57,9 @@ public class User extends Timestamped {
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private UserGenderEnum gender;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Withdrawal> withdrawals = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private final List<PasswordManager> passwordManagerList = new ArrayList<>();
@@ -90,5 +92,9 @@ public class User extends Timestamped {
 
     public void updatePassword(String newPassword) {
         this.password = newPassword;
+    }
+
+    public void denyUser() {
+        this.role = UserRoleEnum.DENY;
     }
 }

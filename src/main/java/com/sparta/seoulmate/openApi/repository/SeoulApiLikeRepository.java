@@ -13,5 +13,4 @@ public interface SeoulApiLikeRepository extends JpaRepository<SeoulApiLike,Long>
     boolean existsByUserAndSeoulApi(User user, SeoulApi service);
 
     Optional<SeoulApiLike> findByUserAndSeoulApi(User user, SeoulApi service);
-
 }

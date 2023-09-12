@@ -3,10 +3,7 @@ package com.sparta.seoulmate.openApi.service;
 import com.sparta.seoulmate.entity.SeoulApi;
 import com.sparta.seoulmate.entity.SeoulApiLike;
 import com.sparta.seoulmate.entity.User;
-
-import com.sparta.seoulmate.entity.UserInterest;
 import com.sparta.seoulmate.openApi.dto.ItemListResponseDto;
-
 import com.sparta.seoulmate.openApi.dto.ItemResponseDto;
 import com.sparta.seoulmate.openApi.dto.UpdateItemDto;
 import com.sparta.seoulmate.openApi.repository.SeoulApiLikeRepository;
@@ -16,9 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -109,8 +103,8 @@ public class OpenApiService {
 
         return ItemResponseDto.of(findService(svcid));
     }
-
-    public void likeService(String svcid, User user) {
+    @Transactional
+    public ItemResponseDto likeService(String svcid, User user) {
         SeoulApi service = findService(svcid);
 
         if (seoulApiLikeRepository.existsByUserAndSeoulApi(user, service)) {
@@ -122,18 +116,21 @@ public class OpenApiService {
                     .build();
             seoulApiLikeRepository.save(seoulApiLike);
         }
+
+        return ItemResponseDto.of(service);
     }
 
     @Transactional
-    public void deleteLikeService(String svcid, User user) {
+    public ItemResponseDto deleteLikeService(String svcid, User user) {
         SeoulApi service = findService(svcid);
         Optional<SeoulApiLike> seoulApiLike = seoulApiLikeRepository.findByUserAndSeoulApi(user, service);
 
         if (seoulApiLike.isPresent()) {
             seoulApiLikeRepository.delete(seoulApiLike.get());
         } else {
-            throw new IllegalArgumentException("해당 서비스에 취소할 좋아요가 없습니다.");
+            System.out.println("해당 게시글에 취소할 좋아요가 없습니다.");
         }
+        return ItemResponseDto.of(service);
     }
 
     //각 카테고리의 데이터 개수 가져오기 (updateDatabase()에서 전체 데이터 베이스를 업데이트 할때 사용.)

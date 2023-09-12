@@ -3,6 +3,7 @@ package com.sparta.seoulmate.service;
 import com.sparta.seoulmate.dto.comment.CommentListResponseDto;
 import com.sparta.seoulmate.dto.comment.CommentRequestDto;
 import com.sparta.seoulmate.dto.comment.CommentResponseDto;
+import com.sparta.seoulmate.dto.post.PostResponseDto;
 import com.sparta.seoulmate.entity.*;
 import com.sparta.seoulmate.repository.CommentLikeRepository;
 import com.sparta.seoulmate.repository.CommentRepository;
@@ -24,7 +25,8 @@ public class CommentService {
     private final NotificationService notificationService;
 
     // Comment 생성
-    public CommentResponseDto createComment (Long postId, User user, CommentRequestDto commentRequestDto) {
+    @Transactional
+    public PostResponseDto createComment (Long postId, User user, CommentRequestDto commentRequestDto) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
@@ -36,7 +38,7 @@ public class CommentService {
         // 글 작성자에게 알림 전송
         notificationService.commentNotification(savedComment);
 
-        return CommentResponseDto.of(savedComment);
+        return PostResponseDto.of(post);
     }
 
     // Comment 단건 조회

@@ -1,8 +1,5 @@
 package com.sparta.seoulmate.config;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,10 +9,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-
-import redis.embedded.RedisServer;
-
-import java.io.IOException;
 
 import java.util.Arrays;
 
@@ -31,8 +24,12 @@ public class EmbeddedRedisConfig {
     @Value(value = "${spring.data.redis.password}")
     private String redisPassword;
 
-    @Autowired
+
     private Environment environment;
+
+    public EmbeddedRedisConfig(Environment environment) {
+        this.environment = environment;
+    }
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {

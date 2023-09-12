@@ -174,7 +174,7 @@ public class PostService {
      * @param user 게시글 좋아요 요청자
      */
     @Transactional
-    public void likePost(Long id, User user) {
+    public PostResponseDto likePost(Long id, User user) {
         Post post = findPost(id);
 
         if (postLikeRepository.existsByUserAndPost(user, post)) {
@@ -184,6 +184,7 @@ public class PostService {
             postLikeRepository.save(postLike);
             notificationService.postLikeNotification(postLike); // 좋아요 알림 추가
         }
+        return PostResponseDto.of(post);
     }
 
     /**
@@ -193,14 +194,15 @@ public class PostService {
      * @param user 게시글 좋아요 취소 요청자
      */
     @Transactional
-    public void deleteLikePost(Long id, User user) {
+    public PostResponseDto deleteLikePost(Long id, User user) {
         Post post = findPost(id);
         Optional<PostLike> postLikeOptional = postLikeRepository.findByUserAndPost(user, post);
         if (postLikeOptional.isPresent()) {
             postLikeRepository.delete(postLikeOptional.get());
         } else {
-            throw new IllegalArgumentException("해당 게시글에 취소할 좋아요가 없습니다.");
+            System.out.println("해당 게시글에 취소할 좋아요가 없습니다.");
         }
+        return PostResponseDto.of(post);
     }
 
     /**

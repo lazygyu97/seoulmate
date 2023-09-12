@@ -4,6 +4,7 @@ import com.sparta.seoulmate.dto.ApiResponseDto;
 import com.sparta.seoulmate.dto.comment.CommentResponseDto;
 import com.sparta.seoulmate.entity.Post;
 import com.sparta.seoulmate.entity.Image;
+import com.sparta.seoulmate.entity.PostLike;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -27,8 +28,9 @@ public class PostResponseDto extends ApiResponseDto {
     private List<PostImageResponseDto> images;
     private String author;
     private String authorImage;
-    private int postLikes;
+    private List<PostLikeResponseDto> postLikes;
     public static PostResponseDto of(Post post) {
+
         return PostResponseDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -43,7 +45,7 @@ public class PostResponseDto extends ApiResponseDto {
                                 .orElse("default") // 이미지가 null인 경우에 대한 처리
                 )                .comments(post.getComments().stream().map(CommentResponseDto::of).toList())
                 .images(post.getImages().stream().map(PostImageResponseDto::of).toList())
-                .postLikes(post.getPostLikes().size())
+                .postLikes(post.getPostLikes().stream().map(PostLikeResponseDto::of).toList())
                 .build();
     }
 }

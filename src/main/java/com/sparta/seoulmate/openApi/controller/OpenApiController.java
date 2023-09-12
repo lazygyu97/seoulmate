@@ -48,17 +48,27 @@ public class OpenApiController {
 
     //서비스 데이터 단건 조회
     @PostMapping("/service/like")
-    public ResponseEntity<ApiResponseDto> likeService(@RequestParam("svcid") String svcid, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity likeService(@RequestParam("svcid") String svcid, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        ItemResponseDto itemResponseDto;
 
-        openApiService.likeService(svcid, userDetails.getUser());
-        return ResponseEntity.status(201).body(new ApiResponseDto("서비스 좋아요 성공", HttpStatus.CREATED.value()));
+        try {
+            itemResponseDto = openApiService.likeService(svcid, userDetails.getUser());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("처리중 오류 발생 :" + e);
+        }
+        return ResponseEntity.ok().body(itemResponseDto);
     }
 
     @DeleteMapping("/service/like")
-    public ResponseEntity<ApiResponseDto> deleteLikeService(@RequestParam("svcid") String svcid, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        openApiService.deleteLikeService(svcid, userDetails.getUser());
+    public ResponseEntity deleteLikeService(@RequestParam("svcid") String svcid, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        ItemResponseDto itemResponseDto;
 
-        return ResponseEntity.status(201).body(new ApiResponseDto("서비스 좋아요 해제 성공", HttpStatus.CREATED.value()));
+        try {
+            itemResponseDto = openApiService.deleteLikeService(svcid, userDetails.getUser());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("처리중 오류 발생 :" + e);
+        }
+        return ResponseEntity.ok().body(itemResponseDto);
     }
 
     @PutMapping("/update")

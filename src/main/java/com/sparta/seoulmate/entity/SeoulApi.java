@@ -18,9 +18,10 @@ import java.util.List;
 @Table(name = "seoul_apis")
 public class SeoulApi {
     //    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY) // 수동 방식... uuid ...!
-//    private Long id;
-// 서비스 ID를 나타내는 필드
+    //    @GeneratedValue(strategy = GenerationType.IDENTITY) // 수동 방식... uuid ...!
+    //    private Long id;
+
+    // 서비스 ID를 나타내는 필드
     @Id
     private String SVCID;
     // 서비스 구분을 나타내는 필드

@@ -1,6 +1,7 @@
 package com.sparta.seoulmate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.seoulmate.config.EmbeddedRedisConfig;
 import com.sparta.seoulmate.dto.test.SignupRequestTestDto;
 import com.sparta.seoulmate.dto.user.LoginRequestDto;
 import com.sparta.seoulmate.entity.UserGenderEnum;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import redis.embedded.Redis;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -42,6 +44,8 @@ public class UserControllerTest {
     EmailService emailService;
     @Autowired
     JwtUtil jwtUtil;
+//    @Autowired
+//    EmbeddedRedisConfig embeddedRedisConfig;
 
     String TEST_USER = "TEST_USER12";
     String TEST_PASSWORD = "TEST_PASSWORD12";

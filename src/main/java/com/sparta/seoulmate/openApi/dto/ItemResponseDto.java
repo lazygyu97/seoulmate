@@ -1,7 +1,10 @@
 package com.sparta.seoulmate.openApi.dto;
 
+import com.sparta.seoulmate.dto.post.PostLikeResponseDto;
 import com.sparta.seoulmate.entity.SeoulApi;
 import lombok.*;
+
+import java.util.List;
 
 @Builder
 @AllArgsConstructor
@@ -28,13 +31,12 @@ public class ItemResponseDto {
     private String RCPTENDDT;//접수종료일시
     private String AREANM;//지역명
     private String IMGURL;//이미지경로
-    private String DTLCONT;//상세내용
     private String TELNO;//전화번호
     private String V_MIN;//서비스이용 시작시간
     private String V_MAX;//서비스이용 종료시간
     private String REVSTDDAYNM;//취소기간 기준정보
     private String REVSTDDAY;//취소기간 기준일까지
-    private int seoulApiLikes;//취소기간 기준일까지
+    private List<ApiLikeResponseDto> seoulApiLikes;//취소기간 기준일까지
 
 
     public static ItemResponseDto of(SeoulApi seoulApi) {
@@ -57,13 +59,12 @@ public class ItemResponseDto {
                 .RCPTENDDT(seoulApi.getRCPTENDDT())
                 .AREANM(seoulApi.getAREANM())
                 .IMGURL(seoulApi.getIMGURL())
-                .DTLCONT(seoulApi.getDTLCONT())
                 .TELNO(seoulApi.getTELNO())
                 .V_MIN(seoulApi.getV_MIN())
                 .V_MAX(seoulApi.getV_MAX())
                 .REVSTDDAYNM(seoulApi.getREVSTDDAYNM())
                 .REVSTDDAY(seoulApi.getREVSTDDAY())
-                .seoulApiLikes(seoulApi.getSeoulApiLikes().size())
+                .seoulApiLikes(seoulApi.getSeoulApiLikes().stream().map(ApiLikeResponseDto::of).toList())
                 .build();
         return itemResponseDto;
     }

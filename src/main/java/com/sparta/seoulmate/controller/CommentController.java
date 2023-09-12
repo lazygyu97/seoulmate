@@ -4,6 +4,7 @@ import com.sparta.seoulmate.dto.ApiResponseDto;
 import com.sparta.seoulmate.dto.comment.CommentListResponseDto;
 import com.sparta.seoulmate.dto.comment.CommentRequestDto;
 import com.sparta.seoulmate.dto.comment.CommentResponseDto;
+import com.sparta.seoulmate.dto.post.PostResponseDto;
 import com.sparta.seoulmate.security.UserDetailsImpl;
 import com.sparta.seoulmate.service.CommentService;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,18 @@ public class CommentController {
 
     // Comment 생성
     @PostMapping("/{postId}/comment")
-    public ResponseEntity<ApiResponseDto> createComment(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CommentRequestDto commentRequestDto) {
-        commentService.createComment(postId, userDetails.getUser(), commentRequestDto);
-        return ResponseEntity.ok().body(new ApiResponseDto("댓글 생성 성공", HttpStatus.OK.value()));
+    public ResponseEntity createComment(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CommentRequestDto commentRequestDto) {
+
+        PostResponseDto postResponseDto;
+
+        try{
+            postResponseDto =commentService.createComment(postId, userDetails.getUser(), commentRequestDto);
+
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body("댓글 작성중 오류가 발생했습니다.");
+        }
+
+        return ResponseEntity.ok().body(postResponseDto);
     }
 
     // Comment 단건 조회
@@ -37,8 +47,8 @@ public class CommentController {
     // Comment 다건 조회
     @GetMapping("/comments")
     public ResponseEntity<CommentListResponseDto> getComments() {
-        CommentListResponseDto commentResponseDto = commentService.getComments();
-        return ResponseEntity.ok().body(commentResponseDto);
+        CommentListResponseDto commentListResponseDto = commentService.getComments();
+        return ResponseEntity.ok().body(commentListResponseDto);
     }
 
     // Comment 수정

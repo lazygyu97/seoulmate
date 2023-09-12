@@ -3,6 +3,7 @@ package com.sparta.seoulmate.openApi.service;
 import com.sparta.seoulmate.entity.SeoulApi;
 import com.sparta.seoulmate.entity.SeoulApiLike;
 import com.sparta.seoulmate.entity.User;
+import com.sparta.seoulmate.openApi.dto.ItemListResponseDto;
 import com.sparta.seoulmate.openApi.dto.ItemResponseDto;
 import com.sparta.seoulmate.openApi.dto.UpdateItemDto;
 import com.sparta.seoulmate.openApi.repository.SeoulApiLikeRepository;
@@ -12,9 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,6 +23,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -47,44 +46,91 @@ public class OpenApiService {
 
 
     // 접수중 서비스 전체 가져오기
-    public Page<ItemResponseDto> getAllService(String category, int page, int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<SeoulApi> pageResult = seoulApiRepository.findByMAXCLASSNMAndSVCSTATNM(category, "접수중", pageable);
-
-        Page<ItemResponseDto> dtoPage = pageResult.map(ItemResponseDto::of);
-
-        return dtoPage;
+    public  ItemListResponseDto getAllService() {
+        List<SeoulApi> result = seoulApiRepository.findBySVCSTATNM("접수중");
+        return ItemListResponseDto.of(result);
     }
+  
+   // 서비스 추천 로직
+    public ItemListResponseDto getRecommendService(User user) {
+        List<String> interest = Optional.ofNullable(user.getUserInterests())
+                .map(interests -> interests.stream()
+                        .map(userInterest -> userInterest.getInterests().getTitle())
+                        .collect(Collectors.toList())) // 관심사가 있으면 제목 리스트로 매핑, 없으면 null
+                .orElse(Collections.emptyList());
+
+        String address = user.getAddress();
+        String serviceStatus = "접수중"; // 서비스 상태
+
+        List<SeoulApi> resultList = new ArrayList<>();
+
+        if (!interest.isEmpty()) {
+            for (String randomInterest : interest) {
+                List<SeoulApi> apiList = seoulApiRepository.findByAREANMAndMINCLASSNMAndSVCSTATNM(address, randomInterest, serviceStatus)
+                        .orElseGet(() -> seoulApiRepository.findByAREANMAndSVCSTATNM(address, serviceStatus)
+                                .orElse(Collections.emptyList()));
+
+                resultList.addAll(apiList);
+
+                if (resultList.size() >= 10) {
+                    break; // 최대 5개까지만 선택
+                }
+            }
+
+            if(resultList.size()<10){
+                List<SeoulApi> extraList= seoulApiRepository.findByAREANMAndSVCSTATNM(address, serviceStatus)
+                        .orElse(Collections.emptyList());
+                int extraSize= 10-resultList.size();
+
+                resultList.addAll(extraList.subList(0,extraSize));
+
+            }
+
+        } else {
+            resultList = seoulApiRepository.findByAREANMAndSVCSTATNM(address, serviceStatus)
+                    .orElse(Collections.emptyList());
+        }
+
+        int maxResultCount = Math.min(resultList.size(), 10);
+        resultList = resultList.subList(0, maxResultCount);
+
+        return ItemListResponseDto.of(resultList);
+    }
+
 
     //서비스 데이터 단건 조회
     public ItemResponseDto getService(String svcid) {
 
         return ItemResponseDto.of(findService(svcid));
     }
-
-    public void likeService(String svcid, User user) {
+    @Transactional
+    public ItemResponseDto likeService(String svcid, User user) {
         SeoulApi service = findService(svcid);
 
         if (seoulApiLikeRepository.existsByUserAndSeoulApi(user, service)) {
             throw new DuplicateRequestException("이미 좋아요 한 서비스 입니다.");
         } else {
-            SeoulApiLike seoulApiLike=SeoulApiLike.builder()
+            SeoulApiLike seoulApiLike = SeoulApiLike.builder()
                     .seoulApi(service)
                     .user(user)
                     .build();
             seoulApiLikeRepository.save(seoulApiLike);
         }
+
+        return ItemResponseDto.of(service);
     }
+
     @Transactional
-    public void deleteLikeService(String svcid, User user) {
+    public ItemResponseDto deleteLikeService(String svcid, User user) {
         SeoulApi service = findService(svcid);
-        Optional<SeoulApiLike> seoulApiLike =seoulApiLikeRepository.findByUserAndSeoulApi(user,service);
+        Optional<SeoulApiLike> seoulApiLike = seoulApiLikeRepository.findByUserAndSeoulApi(user, service);
+
         if (seoulApiLike.isPresent()) {
             seoulApiLikeRepository.delete(seoulApiLike.get());
         } else {
-            throw new IllegalArgumentException("해당 서비스에 취소할 좋아요가 없습니다.");
+            System.out.println("해당 게시글에 취소할 좋아요가 없습니다.");
         }
+        return ItemResponseDto.of(service);
     }
 
     //각 카테고리의 데이터 개수 가져오기 (updateDatabase()에서 전체 데이터 베이스를 업데이트 할때 사용.)

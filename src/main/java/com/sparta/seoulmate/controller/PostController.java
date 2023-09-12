@@ -1,6 +1,7 @@
 package com.sparta.seoulmate.controller;
 
 import com.sparta.seoulmate.dto.ApiResponseDto;
+import com.sparta.seoulmate.dto.post.PostListResponseDto;
 import com.sparta.seoulmate.dto.post.PostRequestDto;
 import com.sparta.seoulmate.dto.post.PostResponseDto;
 import com.sparta.seoulmate.security.UserDetailsImpl;
@@ -30,38 +31,39 @@ public class PostController {
 
     // 게시글 생성
     @PostMapping("/posts")
-    public ResponseEntity<ApiResponseDto> createPost(@RequestPart(value = "title") String title,
-                                                     @RequestPart(value = "content") String content,
-                                                     @Nullable @RequestPart(value = "file") List<MultipartFile> files,
-                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ApiResponseDto> createPost(@RequestPart(value = "title") String title, @RequestPart(value = "content") String content, @Nullable @RequestPart(value = "file") List<MultipartFile> files, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        PostRequestDto requestDto = PostRequestDto.builder()
-                .title(title).content(content).build();
-
+        PostRequestDto requestDto = PostRequestDto.builder().title(title).content(content).build();
+        System.out.println(files.get(0));
         postService.createPost(requestDto, files, userDetails.getUser());
         return ResponseEntity.ok().body(new ApiResponseDto("게시글 생성 성공", HttpStatus.OK.value()));
     }
 
     // 게시글 전체 조회
     @GetMapping("/posts")
-    public ResponseEntity<Page<PostResponseDto>> getPosts(
-            @RequestParam("page") int page,
-            @RequestParam("size") int size,
-            @RequestParam("sortBy") String sortBy,
-            @RequestParam("isAsc") boolean isAsc
-    ) {
-        Page<PostResponseDto> result = postService.getPosts(page - 1, size, sortBy, isAsc);
+    public ResponseEntity<Page<PostResponseDto>> getPosts(@RequestParam("page") int page, @RequestParam("size") int size, @RequestParam("sortBy") String sortBy, @RequestParam("isAsc") boolean isAsc, @RequestParam(value = "address", required = false) String address) {
+        Page<PostResponseDto> result;
+        if (address != null && !address.isEmpty()) {
+            // 주소(address)를 이용한 페이징 처리
+            result = postService.getPostsByAddress(page - 1, size, sortBy, isAsc, address);
+        } else {
+            // 주소가 주어지지 않은 경우 전체 게시물에 대한 페이징 처리
+            result = postService.getPosts(page - 1, size, sortBy, isAsc);
+        }
+        return ResponseEntity.ok().body(result);
+    }
+
+    @GetMapping("/posts/all")
+    public ResponseEntity<PostListResponseDto> getAllPosts() {
+        PostListResponseDto result = postService.getAllPosts();
         return ResponseEntity.ok().body(result);
     }
 
     // 게시글 검색(title, content, title + content)
     @GetMapping("/posts/search")
-    public ResponseEntity<Page<PostResponseDto>> searchPosts(
-            @NotNull @RequestParam("keyword") String keyword, // 검색 키워드 파라미터
-            @RequestParam("criteria") String criteria, // 검색 조건 파라미터 (title, content, title + content 중 하나)
-            @RequestParam("page") int page,
-            @RequestParam("size") int size
-    ) {
+    public ResponseEntity<Page<PostResponseDto>> searchPosts(@NotNull @RequestParam("keyword") String keyword, // 검색 키워드 파라미터
+                                                             @RequestParam("criteria") String criteria, // 검색 조건 파라미터 (title, content, title + content 중 하나)
+                                                             @RequestParam("page") int page, @RequestParam("size") int size) {
         if (keyword.length() < 2) {
             // 검색어 길이가 2자 미만일 경우 에러 응답을 반환하거나, 다른 처리를 할 수 있다
             return ResponseEntity.badRequest().build();
@@ -82,9 +84,7 @@ public class PostController {
 
     // 게시글 업데이트
     @PutMapping("/posts/{id}")
-    public ResponseEntity<ApiResponseDto> updatePost(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                     @PathVariable Long id,
-                                                     @RequestBody PostRequestDto requestDto) {
+    public ResponseEntity<ApiResponseDto> updatePost(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id, @RequestBody PostRequestDto requestDto) {
         try {
             PostResponseDto result = postService.updatePost(id, requestDto, userDetails.getUser());
             return ResponseEntity.ok().body(result);
@@ -95,8 +95,7 @@ public class PostController {
 
     // 게시글 삭제
     @DeleteMapping("/posts/{id}")
-    public ResponseEntity<ApiResponseDto> deletePost(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                     @PathVariable Long id) {
+    public ResponseEntity<ApiResponseDto> deletePost(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id) {
         try {
             postService.deletePost(id, userDetails.getUser());
             return ResponseEntity.ok().body(new ApiResponseDto("게시글 삭제 성공", HttpStatus.OK.value()));
@@ -107,33 +106,31 @@ public class PostController {
 
     // 게시글 좋아요
     @PostMapping("/posts/{id}/likes")
-    public ResponseEntity<ApiResponseDto> likePost(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long id
-    ) {
+    public ResponseEntity likePost(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id) {
+        PostResponseDto postResponseDto;
+
         try {
-            postService.likePost(id, userDetails.getUser());
-        } catch (DuplicateRequestException e) {
-            return ResponseEntity.badRequest().body(new ApiResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+            postResponseDto = postService.likePost(id, userDetails.getUser());
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("댓글 작성중 오류가 발생했습니다.");
         }
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("게시글 좋아요 성공", HttpStatus.ACCEPTED.value()));
+
+        return ResponseEntity.ok().body(postResponseDto);
     }
 
     // 게시글 좋아요 취소
     @DeleteMapping("/posts/{id}/likes")
-    public ResponseEntity<ApiResponseDto> deleteLikePost(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long id
-    ) {
-        try {
-            postService.deleteLikePost(id, userDetails.getUser());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ApiResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
-        }
+    public ResponseEntity deleteLikePost(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id) {
+        PostResponseDto postResponseDto;
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("게시글 좋아요 취소 성공", HttpStatus.ACCEPTED.value()));
+        try {
+            postResponseDto = postService.deleteLikePost(id, userDetails.getUser());
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("댓글 작성중 오류가 발생했습니다.");
+        }
+        return ResponseEntity.ok().body(postResponseDto);
     }
 }

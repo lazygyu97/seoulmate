@@ -6,6 +6,11 @@ plugins {
 
 group = 'com.sparta'
 version = '0.0.1-SNAPSHOT'
+springBoot {
+
+    mainClass = "seoulmate.SeoulmateApplication"
+
+}
 
 java {
     sourceCompatibility = '17'

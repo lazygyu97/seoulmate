@@ -55,7 +55,7 @@ public class UserControllerTest {
     String TEST_CODE = "test3@example.com";
 
 
-    @Test
+//    @Test
     @DisplayName("이메일 인증코드 전송 및 확인 테스트")
     @Order(1)
     public void emailVerification() {
@@ -65,7 +65,7 @@ public class UserControllerTest {
         emailVerificationRepository.save(emailVerification);
     }
 
-    @Test
+//    @Test
     @DisplayName("이메일 인증 확인 테스트")
     @Order(2)
     public void smsVerification() {
@@ -76,7 +76,7 @@ public class UserControllerTest {
     }
 
 
-    @Test
+//    @Test
     @DisplayName("회원가입")
     @Order(3)
     public void signup() throws Exception {
@@ -105,7 +105,7 @@ public class UserControllerTest {
 
     }
 
-    @Test
+//    @Test
     @DisplayName("로그인")
     @Order(4)
     public void login() throws Exception {

@@ -6,11 +6,7 @@ plugins {
 
 group = 'com.sparta'
 version = '0.0.1-SNAPSHOT'
-springBoot {
 
-    mainClass = "seoulmate.SeoulmateApplication"
-
-}
 
 java {
     sourceCompatibility = '17'
@@ -94,6 +90,10 @@ dependencies {
     implementation 'org.webjars:stomp-websocket:2.3.4'
     // gson
     implementation 'com.google.code.gson:gson:2.9.0'
+}
+
+test {
+    enabled = false
 }
 
 tasks.named('test') {

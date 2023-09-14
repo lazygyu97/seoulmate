@@ -58,6 +58,12 @@ public class PostController {
         return ResponseEntity.ok().body(result);
     }
 
+    @GetMapping("/posts/list/{id}")
+    public ResponseEntity<PostListResponseDto> getUserPost(@PathVariable Long id) {
+        PostListResponseDto result = postService.getUserPost(id);
+        return ResponseEntity.ok().body(result);
+    }
+
     // 게시글 검색(title, content, title + content)
     @GetMapping("/posts/search")
     public ResponseEntity<Page<PostResponseDto>> searchPosts(@NotNull @RequestParam("keyword") String keyword, // 검색 키워드 파라미터

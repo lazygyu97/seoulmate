@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-PROJECT_ROOT="/home/ubuntu/app"
-JAR_FILE="$PROJECT_ROOT/spring-webapp.jar"
+PROJECT_ROOT="/Programming/GitHub"
+JAR_FILE="$PROJECT_ROOT/gradle/wrapper/gradle-wrapper.jar"
 
 APP_LOG="$PROJECT_ROOT/application.log"
 ERROR_LOG="$PROJECT_ROOT/error.log"

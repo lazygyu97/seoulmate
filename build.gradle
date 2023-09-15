@@ -12,6 +12,11 @@ version = '0.0.1-SNAPSHOT'
 //
 //}
 
+// 빌드 시 plain jar 파일은 만들어지지 않도록 한다.
+jar {
+    enabled = false
+}
+
 java {
     sourceCompatibility = '17'
 }

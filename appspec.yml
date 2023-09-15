@@ -3,7 +3,7 @@ os: linux
 
 files:
   - source:  /
-    destination: /home/ubuntu/app
+    destination: /Users/USER/eclipse-workspace/sparta/seoulmate
     overwrite: yes
 
 permissions:

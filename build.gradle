@@ -6,6 +6,16 @@ plugins {
 
 group = 'com.sparta'
 version = '0.0.1-SNAPSHOT'
+//springBoot {
+//
+//    mainClass = "seoulmate.SeoulmateApplication"
+//
+//}
+
+// 빌드 시 plain jar 파일은 만들어지지 않도록 한다.
+jar {
+    enabled = false
+}
 
 
 java {
